@@ -3,3 +3,4 @@ __pycache*
 .env
 .env*
 data/raw
+data/apify/glassdoor_cookie.json
