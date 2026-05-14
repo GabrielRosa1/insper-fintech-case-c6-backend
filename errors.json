@@ -1,0 +1,162 @@
+[
+  {
+    "file": "opera_BNfOqpM6V3.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zGpX3FuUzYnrp5pVUh'}",
+    "timestamp": "2026-05-14T16:09:18.474802"
+  },
+  {
+    "file": "opera_Dg8XtCgWEJ.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zJpkErxsEfrqpY7B8P'}",
+    "timestamp": "2026-05-14T16:09:45.644027"
+  },
+  {
+    "file": "opera_Fhl5OiioRm.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zKvq8nsGANz6wHvRzk'}",
+    "timestamp": "2026-05-14T16:10:00.635072"
+  },
+  {
+    "file": "opera_MhJnUXAj8a.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zPZdnhh3jr7pnzKr1u'}",
+    "timestamp": "2026-05-14T16:10:50.238628"
+  },
+  {
+    "file": "opera_QHrlZVWSzS.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 17 column 59 (char 776)",
+    "timestamp": "2026-05-14T16:11:16.530478"
+  },
+  {
+    "file": "opera_SJoGz1hxWY.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50 requests per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zTowNVV4tydiiWsmcb'}",
+    "timestamp": "2026-05-14T16:11:47.608400"
+  },
+  {
+    "file": "opera_SmEdRgZPcJ.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zUKGUvKRCf9cgymCDJ'}",
+    "timestamp": "2026-05-14T16:11:54.722607"
+  },
+  {
+    "file": "opera_XfxpALBBKr.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zWqTVUT4Yx2bfzHixA'}",
+    "timestamp": "2026-05-14T16:12:28.736616"
+  },
+  {
+    "file": "opera_cuIsgWJxGu.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2za9u5vEpxveuGXcMqk'}",
+    "timestamp": "2026-05-14T16:13:13.605600"
+  },
+  {
+    "file": "opera_hC0sRXo3M7.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zd9EUvLy14VAYGuDgx'}",
+    "timestamp": "2026-05-14T16:13:54.224466"
+  },
+  {
+    "file": "opera_lHF0SVeQxq.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zfaX4c8ZE4dvuQthyc'}",
+    "timestamp": "2026-05-14T16:14:27.263787"
+  },
+  {
+    "file": "opera_mGeBns1Qab.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50 requests per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zgoe8WkHtZsPgHDyXh'}",
+    "timestamp": "2026-05-14T16:14:43.842699"
+  },
+  {
+    "file": "opera_uUKwsrVxmT.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2zmn4m5bqncaMG35MUj'}",
+    "timestamp": "2026-05-14T16:15:51.291912"
+  },
+  {
+    "file": "opera_xG4C56fUXd.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb2znmBhuQJCkU6Ax8D2A'}",
+    "timestamp": "2026-05-14T16:16:04.643993"
+  },
+  {
+    "file": "opera_QHrlZVWSzS.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 17 column 59 (char 776)",
+    "timestamp": "2026-05-14T16:29:24.934336"
+  },
+  {
+    "file": "opera_QHrlZVWSzS.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 17 column 59 (char 763)",
+    "timestamp": "2026-05-14T16:30:55.539644"
+  },
+  {
+    "file": "opera_QHrlZVWSzS.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb324rqqpUzbKNRzg6fxy'}",
+    "timestamp": "2026-05-14T16:32:49.892793"
+  },
+  {
+    "file": "opera_TSGlqnqnil.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb325VFqsnitm4wdcZU7a'}",
+    "timestamp": "2026-05-14T16:32:58.444335"
+  },
+  {
+    "file": "opera_lYlNtmoFWf.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb328PXtWGnMbA7cEkHiG'}",
+    "timestamp": "2026-05-14T16:33:37.791811"
+  },
+  {
+    "file": "opera_tDWzr3PgIw.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb32BRdEBob6KyU8DXkBs'}",
+    "timestamp": "2026-05-14T16:34:18.883024"
+  },
+  {
+    "file": "opera_sEmtqrxwt8.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 4 column 28 (char 50)",
+    "timestamp": "2026-05-14T16:34:21.324967"
+  },
+  {
+    "file": "opera_Dff3XGhdmx.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 17 column 59 (char 759)",
+    "timestamp": "2026-05-14T16:42:31.073333"
+  },
+  {
+    "file": "opera_QHrlZVWSzS.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 17 column 59 (char 763)",
+    "timestamp": "2026-05-14T16:43:00.655325"
+  },
+  {
+    "file": "opera_PDv28hcmbT.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb32rZDiaHXwtwgL6jHPe'}",
+    "timestamp": "2026-05-14T16:43:09.714714"
+  },
+  {
+    "file": "opera_ZCLNMOoQRi.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb32uiPTkXFpyrBwP6a5H'}",
+    "timestamp": "2026-05-14T16:43:52.639692"
+  },
+  {
+    "file": "opera_adzRlG62f2.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb32uwobw28XTg2cSS8kf'}",
+    "timestamp": "2026-05-14T16:43:55.719258"
+  },
+  {
+    "file": "opera_iGPBSNUYX8.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb32xKQS6z2j79enrdR6h'}",
+    "timestamp": "2026-05-14T16:44:27.897455"
+  },
+  {
+    "file": "opera_u0iIZclWUm.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb331QNASnsKjaN7HnPiq'}",
+    "timestamp": "2026-05-14T16:45:09.727445"
+  },
+  {
+    "file": "opera_Dff3XGhdmx.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 33 column 59 (char 1418)",
+    "timestamp": "2026-05-14T16:47:45.889025"
+  },
+  {
+    "file": "opera_QHrlZVWSzS.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb33Dvu32WoWm2VqSVXix'}",
+    "timestamp": "2026-05-14T16:47:59.910419"
+  },
+  {
+    "file": "opera_UNlR3mI8XY.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb33FPiN9NFk6hKfV3kW5'}",
+    "timestamp": "2026-05-14T16:48:19.505406"
+  },
+  {
+    "file": "opera_lYlNtmoFWf.png",
+    "error": "Falhou após 3 tentativas. Último erro: API error: Error code: 429 - {'type': 'error', 'error': {'type': 'rate_limit_error', 'message': \"This request would exceed your organization's rate limit of 50,000 input tokens per minute (org: e62c3d9c-2390-4193-82bc-c4ec818713ed, model: claude-haiku-4-5-20251001). For details, refer to: https://docs.claude.com/en/api/rate-limits. You can see the response headers for current usage. Reduce the prompt length or the maximum tokens requested, or try again later. View your current limits at https://console.anthropic.com/settings/limits. To raise this limit, purchase credits to advance to the next usage tier at https://console.anthropic.com/settings/billing.\"}, 'request_id': 'req_011Cb33JLwkvGYeTg4zhHY99'}",
+    "timestamp": "2026-05-14T16:48:59.568253"
+  }
+]
