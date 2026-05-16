@@ -1,10 +1,10 @@
-from sqlalchemy import create_engine, event
+from contextlib import contextmanager
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.pool import NullPool
 from app.config import get_settings
 
 settings = get_settings()
-
 
 # NullPool para ambiente de pipeline — evita connection leaks em scripts longos
 engine = create_engine(
@@ -29,6 +29,14 @@ def get_db():
         db.close()
 
 
+@contextmanager
 def get_session():
     """Context manager para uso em scripts/pipeline."""
-    return SessionLocal()
+    session = SessionLocal()
+    try:
+        yield session
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
