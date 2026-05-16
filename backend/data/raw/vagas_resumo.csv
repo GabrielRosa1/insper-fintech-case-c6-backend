@@ -1,0 +1,45 @@
+﻿empresa,area,total_vagas,pct_remoto,pct_hibrido,pct_presencial,pct_senior,pct_junior,media_candidatos
+BTG Pactual,corporativo,59,0.051,0.0,0.949,1.0,0.0,164.712
+BTG Pactual,dados,2,0.0,0.0,1.0,1.0,0.0,200.0
+BTG Pactual,negocios,21,0.0,0.048,0.952,1.0,0.0,167.571
+BTG Pactual,operacoes,27,0.0,0.0,1.0,0.963,0.037,167.148
+BTG Pactual,outros,10,0.0,0.3,0.7,1.0,0.0,167.9
+BTG Pactual,tecnologia,59,0.0,0.492,0.508,1.0,0.0,125.407
+Banco Bradesco,corporativo,21,0.0,0.762,0.238,0.238,0.0,132.667
+Banco Bradesco,dados,10,0.0,1.0,0.0,0.0,0.0,170.8
+Banco Bradesco,negocios,100,0.0,0.28,0.72,0.17,0.01,126.59
+Banco Bradesco,operacoes,21,0.0,0.667,0.333,0.048,0.0,150.429
+Banco Bradesco,tecnologia,62,0.0,0.952,0.048,0.274,0.016,112.516
+C6 Bank,corporativo,17,0.0,0.059,0.941,0.294,0.059,179.353
+C6 Bank,dados,8,0.0,0.0,1.0,0.625,0.25,164.375
+C6 Bank,negocios,50,0.0,0.0,1.0,0.28,0.04,146.54
+C6 Bank,operacoes,13,0.0,0.154,0.846,0.077,0.077,159.692
+C6 Bank,tecnologia,20,0.0,0.0,1.0,0.2,0.05,127.4
+F1RST Digital Services,corporativo,12,0.0,1.0,0.0,0.583,0.167,102.25
+F1RST Digital Services,tecnologia,5,0.0,1.0,0.0,0.4,0.0,153.0
+Itaú Unibanco,corporativo,24,0.042,0.208,0.75,0.458,0.0,146.5
+Itaú Unibanco,dados,12,0.0,0.083,0.917,0.583,0.167,177.0
+Itaú Unibanco,negocios,58,0.052,0.086,0.862,0.241,0.034,144.603
+Itaú Unibanco,operacoes,20,0.05,0.0,0.95,0.0,0.1,159.8
+Itaú Unibanco,tecnologia,117,0.0,0.419,0.581,0.496,0.051,119.162
+Nubank,corporativo,9,0.0,1.0,0.0,0.111,0.0,190.111
+Nubank,dados,9,0.0,1.0,0.0,0.444,0.0,192.222
+Nubank,negocios,4,0.0,1.0,0.0,0.75,0.0,174.5
+Nubank,tecnologia,90,0.0,1.0,0.0,0.389,0.0,125.589
+Santander Brasil,corporativo,14,0.0,0.0,1.0,0.143,0.0,159.5
+Santander Brasil,negocios,2,0.0,0.5,0.5,0.0,0.0,200.0
+Santander Brasil,operacoes,1,0.0,1.0,0.0,0.0,0.0,200.0
+Santander Brasil,outros,144,0.035,0.111,0.854,0.208,0.0,116.41
+Santander Brasil,tecnologia,4,0.0,1.0,0.0,0.75,0.0,153.25
+TOOLS Digital Services,corporativo,1,0.0,1.0,0.0,0.0,0.0,200.0
+XP Inc.,corporativo,77,0.0,0.039,0.961,0.299,0.039,162.623
+XP Inc.,dados,10,0.0,0.0,1.0,0.4,0.1,115.9
+XP Inc.,negocios,24,0.0,0.167,0.833,0.458,0.042,138.917
+XP Inc.,operacoes,6,0.0,0.0,1.0,0.5,0.0,177.667
+XP Inc.,tecnologia,50,0.02,0.42,0.56,0.58,0.1,121.96
+iFood,corporativo,3,0.0,0.667,0.333,0.333,0.0,92.333
+iFood,dados,6,0.5,0.167,0.333,0.667,0.333,144.333
+iFood,negocios,31,0.226,0.129,0.645,0.742,0.0,139.742
+iFood,operacoes,6,0.0,0.0,1.0,0.667,0.167,150.333
+iFood,outros,13,0.385,0.154,0.462,0.308,0.0,161.923
+iFood,tecnologia,28,0.964,0.0,0.036,0.464,0.0,169.464

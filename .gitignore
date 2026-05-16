@@ -5,3 +5,4 @@ data/raw
 data/apify/glassdoor_cookie.json
 scripts/prints/
 CLAUDE.md
+.claude
