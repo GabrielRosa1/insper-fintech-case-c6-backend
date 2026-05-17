@@ -21,6 +21,6 @@ pydantic-settings==2.7.0
 python-dateutil==2.9.0
 tqdm==4.67.1
 
-voyageai==0.3.2
+voyageai
 
 gunicorn==23.0.0
