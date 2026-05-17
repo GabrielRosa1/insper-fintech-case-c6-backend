@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     pipeline_workers: int = 5
     pipeline_batch_size: int = 10
 
+    # Voyage AI (embeddings)
+    voyage_api_key: str | None = None
+
     # App
     app_env: str = "development"
     log_level: str = "INFO"
