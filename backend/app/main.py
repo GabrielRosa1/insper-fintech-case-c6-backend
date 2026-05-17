@@ -1,12 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import overview, insights, gaps, timeline, chat, reviews
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
+
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
 
 app = FastAPI(title="Employer Branding Intelligence API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "https://case-c6-insper-fintech.vercel.app"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

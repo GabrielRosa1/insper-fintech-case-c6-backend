@@ -5,7 +5,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     # Database
     database_url: str
-
+    
     # Anthropic
     anthropic_api_key: str
 
@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     log_level: str = "INFO"
 
+    allowed_origins: str | None = None
+    
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
