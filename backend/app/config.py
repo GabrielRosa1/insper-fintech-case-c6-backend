@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     allowed_origins: str | None = None
+
+    # JWT
+    jwt_secret: str
+    jwt_expire_minutes: int = 1440
     
     class Config:
         env_file = ".env"

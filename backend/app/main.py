@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import overview, insights, gaps, timeline, chat, reviews
+from app.api import overview, insights, gaps, timeline, chat, reviews, auth
 from dotenv import load_dotenv
 import os
 
@@ -19,6 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(overview.router, prefix="/api/v1")
 app.include_router(insights.router, prefix="/api/v1")
 app.include_router(gaps.router, prefix="/api/v1")
