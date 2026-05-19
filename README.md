@@ -167,7 +167,7 @@ python -m app.pipeline.08_embeddings --force
 ### Subindo o servidor
 
 ```bash
-cd backend_api
+cd backend
 uvicorn app.main:app --reload --port 8000
 ```
 
@@ -228,46 +228,142 @@ insights                13 insights estratégicos gerados
 ## 📁 Estrutura do projeto
 
 ```
-backend/
-├── alembic/
-│   └── versions/
-│       ├── 001_initial_schema.py     # 10 tabelas + pgvector + índices
-│       └── 002_seed_companies_dimensions.py
-├── app/
-│   ├── config.py                     # Settings via pydantic-settings
-│   ├── database.py                   # Engine SQLAlchemy + get_session
-│   ├── models/                       # ORM models
-│   └── pipeline/
-│       ├── 01_ingest.py
-│       ├── 02_normalize.py
-│       ├── 03_analyze_micro.py
-│       ├── 04_aggregate.py
-│       ├── 05_detect_events.py
-│       ├── 06_gap_analysis.py
-│       ├── 07_insights_macro.py
-│       └── 08_embeddings.py
-├── backend_api/
-│   └── app/
-│       ├── main.py                   # FastAPI app + CORS
-│       ├── database.py
-│       └── routers/
-│           ├── overview.py
-│           ├── insights.py
-│           ├── gaps.py
-│           ├── timeline.py
-│           ├── chat.py               # RAG endpoint
-│           └── reviews.py
-├── data/
-│   └── raw/
-│       ├── c6bank.json               # 508 reviews C6 Bank
-│       ├── nubank.json               # 471 reviews Nubank
-│       ├── vagas_market_intelligence.csv
-│       ├── vagas_skills.csv
-│       ├── vagas_skills_por_empresa.csv
-│       └── vagas_resumo.csv
+.
+├── .gitattributes
+├── .gitignore
+├── README.md
+├── c6bank.json
+├── errors.json
+├── nubank.json
 ├── requirements.txt
-├── .env.example
-└── README.md
+├── api/
+│   ├── adzuna_vagas.py
+│   ├── cvm_fre.py
+│   ├── github_vagas.py
+│   └── ifdata_bacen.py
+├── backend/
+│   ├── .dockerignore
+│   ├── .env.example
+│   ├── alembic.ini
+│   ├── requirements.txt
+│   ├── alembic/
+│   │   ├── env.py
+│   │   ├── script.py.mako
+│   │   └── versions/
+│   │       ├── .gitkeep
+│   │       ├── 314e6a2b8a60_chat_threads_messages.py
+│   │       ├── 932debbd270f_initial_schema.py
+│   │       └── c3375f4b841d_seed_companies_dimensions.py
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── main.py
+│   │   ├── ai/
+│   │   │   ├── client.py
+│   │   │   ├── schemas.py
+│   │   │   └── prompts/
+│   │   │       ├── macro_synthesis.md
+│   │   │       ├── micro_analysis.md
+│   │   │       └── rag_qa.md
+│   │   ├── api/
+│   │   │   ├── chat.py
+│   │   │   ├── companies.py
+│   │   │   ├── dimensions.py
+│   │   │   ├── gaps.py
+│   │   │   ├── insights.py
+│   │   │   ├── overview.py
+│   │   │   ├── reviews.py
+│   │   │   └── timeline.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── chat.py
+│   │   │   ├── company.py
+│   │   │   ├── dimension.py
+│   │   │   ├── event.py
+│   │   │   ├── gap.py
+│   │   │   ├── insight.py
+│   │   │   ├── job.py
+│   │   │   ├── review.py
+│   │   │   ├── review_dimension.py
+│   │   │   └── stats.py
+│   │   └── pipeline/
+│   │       ├── 01_ingest.py
+│   │       ├── 02_normalize.py
+│   │       ├── 03_analyze_micro.py
+│   │       ├── 04_aggregate.py
+│   │       ├── 05_detect_events.py
+│   │       ├── 06_gap_analysis.py
+│   │       ├── 07_insights_macro.py
+│   │       └── 08_embeddings.py
+│   └── data/
+│       └── raw/
+│           ├── c6bank.json
+│           ├── nubank.json
+│           ├── vagas_market_intelligence.csv
+│           ├── vagas_resumo.csv
+│           ├── vagas_skills.csv
+│           └── vagas_skills_por_empresa.csv
+├── data/
+│   ├── apify/
+│   │   ├── dataset_linkedin-jobs-scraper_2026-04-29_15-41-11-564.json
+│   │   ├── glassdoor_cookie.json
+│   │   ├── scraping_linkedin_1.json
+│   │   ├── scraping_linkedin_2.json
+│   │   ├── scraping_linkedin_3.json
+│   │   ├── vagas_20260502_1410.json
+│   │   ├── vagas_c6.json
+│   │   ├── vagas_concorrentes.json
+│   │   ├── vagas_todas_areas.json
+│   │   └── scraping/
+│   │       ├── data/
+│   │       │   └── apify/
+│   │       │       └── vagas_todas_areas.json
+│   │       ├── glassdoor.py
+│   │       ├── vagas_linkedin.py
+│   │       ├── vagas_linkedin2.py
+│   │       └── vagas_linkedin3.py
+│   ├── glassdor_reviews/
+│   │   └── reviews_c6.json
+│   ├── processed/
+│   │   ├── vagas_market_intelligence.csv
+│   │   ├── vagas_resumo.csv
+│   │   ├── vagas_skills.csv
+│   │   └── vagas_skills_por_empresa.csv
+│   └── raw/
+│       ├── all_reviews.csv
+│       ├── ds_salaries.csv
+│       ├── glassdoor_reviews.csv
+│       └── state_of_data_2024.csv
+├── etl/
+│   ├── c6_jobs_clean.csv
+│   ├── c6_jobs_features.csv
+│   ├── c6_jobs_skills.csv
+│   ├── etl_vagas_c6.py
+│   ├── etl_vagas_concorrentes.py
+│   ├── etl_vagas_v2.py
+│   ├── jobs_clean.csv
+│   ├── jobs_features.csv
+│   └── jobs_skills.csv
+├── notebooks/
+│   ├── all_reviews.ipynb
+│   ├── glassdoor_reviews.ipynb
+│   ├── market_intelligence_analysis.ipynb
+│   ├── salaries.ipynb
+│   ├── state_of_data_brazil_2024_2025.ipynb
+│   ├── vagas_c6_x_concorrentes.ipynb
+│   └── vagas_concorrentes.ipynb
+└── scripts/
+        ├── glassdoor_extractor.py
+        ├── glassdoor_jobs_review_2_database.py
+        ├── glassdoor_review_database.py
+        ├── normalize_names.py
+        ├── normalize_nubank.py
+        ├── salary_database.py
+        ├── state_of_data_brazil_2024r.py
+        └── prints/
+                ├── c6/
+                └── nubank/
 ```
 
 <br>
