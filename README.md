@@ -232,8 +232,14 @@ insights                13 insights estratégicos gerados
 ├── .gitattributes
 ├── .gitignore
 ├── README.md
+├── bancobv.json
+├── bradesco.json
 ├── c6bank.json
+├── CLAUDE.md
 ├── errors.json
+├── ifood.json
+├── itau.json
+├── mercadolivre.json
 ├── nubank.json
 ├── requirements.txt
 ├── api/
