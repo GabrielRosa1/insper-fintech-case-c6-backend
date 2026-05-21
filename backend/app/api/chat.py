@@ -22,7 +22,7 @@ voyage_client    = voyageai.Client(
 
 EMBEDDING_MODEL = "voyage-3"
 CHAT_MODEL      = "claude-haiku-4-5-20251001"
-RAG_LIMIT       = 10
+RAG_LIMIT       = 12   # ligeiramente maior para cobrir mais empresas
 MAX_HISTORY     = 10
 
 # ── System prompt ─────────────────────────────────────────────────────────────
@@ -31,83 +31,175 @@ SYSTEM_PROMPT = """Você é um consultor sênior especializado em Employer Brand
 contratado exclusivamente pelo **C6 Bank** para apoiar decisões de captação e retenção.
 
 ## Contexto do projeto
-Você tem acesso a uma base de dados proprietária com:
-- **{total_c6} reviews reais** de funcionários e ex-funcionários do C6 Bank no Glassdoor
-- **{total_nu} reviews reais** do Nubank — principal concorrente de talentos
-- **{total_jobs} vagas do LinkedIn** de ambas as empresas, com skills mapeadas
-- Análise em 9 dimensões: Liderança, Cultura, Salário, Modelo de Trabalho, Crescimento, Saúde Mental, Diversidade, Stack Técnica e Propósito
+Você tem acesso a uma base de dados proprietária com reviews reais de funcionários de **{total_companies} empresas** \
+analisadas via Claude IA (Glassdoor) e vagas do LinkedIn:
 
-## Scorecard atual (score 0–10)
-| Dimensão | C6 Bank | Nubank | |
-|----------|---------|--------|---|
+{companies_context}
+
+Total: **{total_reviews} reviews** + **{total_jobs} vagas** analisadas · 9 dimensões de employer branding
+
+## Scorecard de mercado — score 0–10 (maior = melhor percepção)
 {scorecard_table}
+
+## Ranking geral por sentimento (1º = melhor empregador percebido)
+{ranking_context}
 
 ## Eventos recentes relevantes
 {events_context}
 
 ## Sua missão
-Ajudar o C6 Bank a:
-1. **Captar talentos** insatisfeitos com o Nubank (especialmente pelo RTO de nov/2025)
-2. **Reter funcionários** endereçando os drivers reais de saída identificados nas reviews
+Apoiar o C6 Bank em:
+1. **Captar talentos** identificando janelas de oportunidade em cada concorrente
+2. **Reter funcionários** com base nos drivers reais de saída
 3. **Fechar gaps** entre o que as vagas prometem e o que os funcionários vivem
-4. **Comunicar vantagens reais** do C6 que estão sendo subutilizadas (ex: diversidade 5.5 vs 1.9)
+4. **Comunicar vantagens reais** do C6 que estão sendo subutilizadas
 
 ## Como responder
-- Você TEM dados do Nubank — use-os ativamente para comparações quando relevante
-- Seja direto e estratégico — fale como consultor sênior, não como chatbot genérico
+- Use os dados de TODAS as empresas disponíveis — compare amplamente quando relevante
+- Ao mencionar um concorrente, cite seu score e posição no ranking para dar contexto
+- Identifique quais problemas são **exclusivos do C6** vs **endêmicos do setor** (importantes para não prometer o que o mercado todo falha)
 - Cite trechos literais das reviews entre aspas como evidência
-- Use markdown: **negrito** para pontos críticos, ## para seções, listas para ações, respostas didáticas e profissionais
+- Seja direto e estratégico — fale como consultor sênior
+- Use markdown: **negrito** para pontos críticos, ## para seções, listas para ações
 - Respostas entre 3–6 parágrafos, ou lista estruturada quando mais útil
 - Responda SEMPRE em português brasileiro
-- Se não houver evidência suficiente nas reviews fornecidas, diga e sugira o que faltaria"""
+- Se não houver evidência suficiente nas reviews fornecidas, diga claramente"""
 
 
 def build_system_prompt(db: Session) -> str:
+    # Contagem de reviews por empresa
     counts = db.execute(text("""
-        SELECT c.slug, COUNT(*) FROM reviews r
-        JOIN companies c ON c.id = r.company_id
-        WHERE r.is_event_review = false AND r.analysis_version IS NOT NULL
-        GROUP BY c.slug
+        SELECT c.slug, c.name, COUNT(r.id) as total,
+               ROUND(AVG(r.avaliacao_geral)::numeric, 2) as avg_nota,
+               SUM(CASE WHEN r.sentimento_geral = 'positivo' THEN 1 ELSE 0 END) as pos,
+               SUM(CASE WHEN r.sentimento_geral = 'negativo' THEN 1 ELSE 0 END) as neg
+        FROM companies c
+        LEFT JOIN reviews r ON r.company_id = c.id
+            AND r.is_event_review = false AND r.analysis_version IS NOT NULL
+        WHERE c.is_active = true
+        GROUP BY c.slug, c.name, c.is_target
+        ORDER BY c.is_target DESC, c.name
     """)).fetchall()
-    totals = {r[0]: r[1] for r in counts}
 
+    total_reviews = sum(r[2] or 0 for r in counts)
     total_jobs = db.execute(text("SELECT COUNT(*) FROM jobs")).scalar() or 0
 
+    # Calcula sentiment_score e ranking
+    companies_with_score = []
+    for slug, name, total, avg_nota, pos, neg in counts:
+        if total:
+            mix = total - (pos or 0) - (neg or 0)
+            score = round(((pos or 0) * 1.0 + mix * 0.5) / total * 10, 1)
+        else:
+            score = 0
+        companies_with_score.append((slug, name, total or 0, float(avg_nota or 0), score))
+
+    # Ranking por sentiment_score
+    ranked = sorted(companies_with_score, key=lambda x: -x[4])
+
+    # Companies context (para o bloco de contexto geral)
+    companies_lines = []
+    for rank_idx, (slug, name, total, avg_nota, score) in enumerate(ranked):
+        is_target = slug == "c6_bank"
+        tag = " ← TARGET" if is_target else ""
+        companies_lines.append(
+            f"- **{name}**{tag}: {total} reviews · nota {avg_nota:.1f}/5 · sentimento {score:.1f}/10"
+        )
+    companies_context = "\n".join(companies_lines)
+
+    # Ranking context (linha simples)
+    ranking_lines = []
+    for i, (slug, name, total, avg_nota, score) in enumerate(ranked):
+        is_target = slug == "c6_bank"
+        tag = " ← C6" if is_target else ""
+        ranking_lines.append(f"{i+1}º {name}{tag} — {score:.1f}/10")
+    ranking_context = " | ".join(ranking_lines)
+
+    # Scorecard: todas as dimensões × todas as empresas
     dims = db.execute(text("""
-        SELECT d.name, s1.sentiment_score, s2.sentiment_score
-        FROM dimensions d
-        LEFT JOIN company_dimension_stats s1
-            ON s1.dimension_id = d.id AND s1.period = 'all'
-            AND s1.analysis_version = 'v1'
-            AND s1.company_id = (SELECT id FROM companies WHERE slug = 'c6_bank')
-        LEFT JOIN company_dimension_stats s2
-            ON s2.dimension_id = d.id AND s2.period = 'all'
-            AND s2.analysis_version = 'v1'
-            AND s2.company_id = (SELECT id FROM companies WHERE slug = 'nubank')
-        WHERE d.is_active = true ORDER BY d.display_order
+        SELECT d.name, d.display_order FROM dimensions
+        WHERE is_active = true ORDER BY display_order
     """)).fetchall()
 
-    rows = []
-    for name, c6_s, nu_s in dims:
-        c6v = f"{float(c6_s):.1f}" if c6_s else "N/A"
-        nuv = f"{float(nu_s):.1f}" if nu_s else "N/A"
-        diff = (float(c6_s) - float(nu_s)) if (c6_s and nu_s) else 0
-        arrow = "✅ C6" if diff > 0.5 else ("🟣 Nu" if diff < -0.5 else "⚖️ Empate")
-        rows.append(f"| {name} | {c6v} | {nuv} | {arrow} |")
+    # Pega scores de todas as empresas para cada dimensão
+    all_scores = db.execute(text("""
+        SELECT c.slug, c.name, d.name as dim_name, d.display_order,
+               s.sentiment_score, s.total_mentions
+        FROM company_dimension_stats s
+        JOIN companies   c ON c.id = s.company_id
+        JOIN dimensions  d ON d.id = s.dimension_id
+        WHERE s.period = 'all' AND s.analysis_version = 'v1'
+          AND d.is_active = true AND c.is_active = true
+        ORDER BY d.display_order, s.sentiment_score DESC
+    """)).fetchall()
 
+    # Agrupa por dimensão
+    dim_scores: dict = {}
+    for slug, name, dim_name, d_order, score, mentions in all_scores:
+        if dim_name not in dim_scores:
+            dim_scores[dim_name] = {"order": d_order, "companies": {}}
+        dim_scores[dim_name]["companies"][slug] = (name, float(score) if score else 0, mentions or 0)
+
+    # Monta tabela compacta de scorecard
+    # Colunas: Dimensão | C6 | Nubank | iFood | BV | Bradesco | Itaú | ML | Líder
+    company_order = ["c6_bank", "nubank", "ifood", "banco_bv", "bradesco", "itau_unibanco", "mercado_livre"]
+    company_abbrev = {
+        "c6_bank": "C6", "nubank": "Nu", "ifood": "iFood",
+        "banco_bv": "BV", "bradesco": "Brad", "itau_unibanco": "Itaú", "mercado_livre": "ML",
+    }
+
+    # Header da tabela
+    header_cols = ["Dimensão"] + [company_abbrev.get(s, s) for s in company_order] + ["Líder"]
+    header = "| " + " | ".join(header_cols) + " |"
+    separator = "| " + " | ".join(["---"] * len(header_cols)) + " |"
+    scorecard_rows = [header, separator]
+
+    for dim_name, dim_data in sorted(dim_scores.items(), key=lambda x: x[1]["order"]):
+        co_data = dim_data["companies"]
+        cols = [dim_name]
+        scores_for_dim = []
+        for slug in company_order:
+            if slug in co_data:
+                s = co_data[slug][1]
+                cols.append(f"{s:.1f}")
+                scores_for_dim.append((slug, s))
+            else:
+                cols.append("—")
+
+        # Líder desta dimensão
+        if scores_for_dim:
+            leader_slug = max(scores_for_dim, key=lambda x: x[1])
+            leader_abbrev = company_abbrev.get(leader_slug[0], leader_slug[0])
+            cols.append(f"{leader_abbrev} ({leader_slug[1]:.1f})")
+        else:
+            cols.append("—")
+
+        scorecard_rows.append("| " + " | ".join(cols) + " |")
+
+    scorecard_table = "\n".join(scorecard_rows)
+
+    # Eventos relevantes (de todas as empresas)
     events = db.execute(text("""
-        SELECT ce.nome, ce.data_evento, c.name
+        SELECT ce.nome, ce.data_evento, c.name, ce.event_type, ce.sentiment_delta
         FROM company_events ce JOIN companies c ON c.id = ce.company_id
-        WHERE ce.is_confirmed = true ORDER BY ce.data_evento DESC LIMIT 6
+        WHERE ce.is_confirmed = true OR ce.source = 'manual'
+        ORDER BY ce.data_evento DESC LIMIT 8
     """)).fetchall()
-    events_ctx = "\n".join(f"- **{e[0]}** ({str(e[1])[:7]}) — {e[2]}" for e in events) or "—"
+
+    events_lines = []
+    for nome, data_ev, co_name, etype, delta in events:
+        delta_str = f" (Δ{delta:+.1f})" if delta else ""
+        events_lines.append(f"- **{nome}** ({str(data_ev)[:7]}) — {co_name}{delta_str}")
+    events_context = "\n".join(events_lines) or "— Nenhum evento confirmado registrado"
 
     return SYSTEM_PROMPT.format(
-        total_c6=totals.get("c6_bank", 0),
-        total_nu=totals.get("nubank", 0),
+        total_companies=len(companies_with_score),
+        total_reviews=total_reviews,
         total_jobs=total_jobs,
-        scorecard_table="\n".join(rows),
-        events_context=events_ctx,
+        companies_context=companies_context,
+        ranking_context=ranking_context,
+        scorecard_table=scorecard_table,
+        events_context=events_context,
     )
 
 
@@ -118,7 +210,7 @@ def get_query_embedding(query: str) -> list[float]:
 
 def retrieve_reviews(db: Session, vec_str: str) -> tuple[str, list[dict]]:
     rows = db.execute(text("""
-        SELECT r.id, c.name, r.cargo, r.avaliacao_geral,
+        SELECT r.id, c.name, c.slug, r.cargo, r.avaliacao_geral,
                r.pros, r.contras, r.resumo_ia, r.sentimento_geral,
                r.data_review, r.nivel_senioridade, r.area_funcional,
                ROUND((1 - (embedding <=> CAST(:vec AS vector)))::numeric, 3) as sim
@@ -129,18 +221,28 @@ def retrieve_reviews(db: Session, vec_str: str) -> tuple[str, list[dict]]:
     """), {"vec": vec_str, "lim": RAG_LIMIT}).fetchall()
 
     parts, sources = [], []
-    for id_, empresa, cargo, nota, pros, contras, resumo, sentimento, data_r, nivel, area, sim in rows:
-        header = f"[Review #{id_} | {empresa} | {cargo or 'N/A'} | {nivel or ''} | {area or ''} | ⭐{nota}/5 | {sentimento} | {str(data_r)[:7] if data_r else ''}]"
+    for id_, empresa, slug, cargo, nota, pros, contras, resumo, sentimento, data_r, nivel, area, sim in rows:
+        header = (
+            f"[Review #{id_} | {empresa} | {cargo or 'N/A'} | "
+            f"{nivel or ''} | {area or ''} | ⭐{nota}/5 | "
+            f"{sentimento} | {str(data_r)[:7] if data_r else ''}]"
+        )
         linhas = [header]
         if resumo:  linhas.append(f"Síntese: {resumo}")
         if pros:    linhas.append(f"Positivos: {pros[:300]}")
         if contras: linhas.append(f"Negativos: {contras[:300]}")
         parts.append("\n".join(linhas))
         sources.append({
-            "id": id_, "empresa": empresa, "cargo": cargo,
-            "nota": float(nota) if nota else None, "sentimento": sentimento,
-            "nivel": nivel, "area": area, "similarity": float(sim),
-            "trecho": (contras or pros or "")[:150],
+            "id":         id_,
+            "empresa":    empresa,
+            "empresa_slug": slug,
+            "cargo":      cargo,
+            "nota":       float(nota) if nota else None,
+            "sentimento": sentimento,
+            "nivel":      nivel,
+            "area":       area,
+            "similarity": float(sim),
+            "trecho":     (contras or pros or "")[:150],
         })
 
     return "\n\n---\n\n".join(parts), sources
@@ -191,25 +293,34 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
         INSERT INTO chat_messages (thread_id, role, content, embedding_query)
         VALUES (:tid, 'user', :content, :query)
     """), {"tid": thread_id, "content": req.question, "query": req.question})
-    db.execute(text("UPDATE chat_threads SET message_count = message_count + 1, last_message_at = NOW(), updated_at = NOW() WHERE id = :id"), {"id": thread_id})
+    db.execute(text("""
+        UPDATE chat_threads
+        SET message_count = message_count + 1, last_message_at = NOW(), updated_at = NOW()
+        WHERE id = :id
+    """), {"id": thread_id})
     db.commit()
 
-    # 4. RAG
+    # 4. RAG — busca reviews de todas as empresas semanticamente
     q_emb   = get_query_embedding(req.question)
     vec_str = "[" + ",".join(str(round(x, 8)) for x in q_emb) + "]"
     context, sources = retrieve_reviews(db, vec_str)
     review_ids = [s["id"] for s in sources]
 
-    # 5. Chama Claude
+    # 5. Chama Claude com system prompt de mercado completo
     system_prompt = build_system_prompt(db)
     messages = history + [{
         "role": "user",
-        "content": f"## Reviews relevantes da base de dados\n\n{context}\n\n---\n\n## Pergunta\n\n{req.question}"
+        "content": (
+            f"## Reviews relevantes recuperadas da base de dados\n\n{context}\n\n"
+            f"---\n\n## Pergunta\n\n{req.question}"
+        )
     }]
 
     response = anthropic_client.messages.create(
-        model=CHAT_MODEL, max_tokens=1500,
-        system=system_prompt, messages=messages,
+        model=CHAT_MODEL,
+        max_tokens=1500,
+        system=system_prompt,
+        messages=messages,
     )
 
     answer     = response.content[0].text
@@ -224,38 +335,59 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
         VALUES (:tid, 'assistant', :content, :sources, :rids, :query, :tokens, :model, :lat)
         RETURNING id
     """), {
-        "tid": thread_id, "content": answer,
+        "tid":     thread_id,
+        "content": answer,
         "sources": json.dumps(sources[:5], ensure_ascii=False),
-        "rids": review_ids, "query": req.question,
-        "tokens": tokens, "model": CHAT_MODEL, "lat": latency_ms,
+        "rids":    review_ids,
+        "query":   req.question,
+        "tokens":  tokens,
+        "model":   CHAT_MODEL,
+        "lat":     latency_ms,
     }).fetchone()
 
-    db.execute(text("UPDATE chat_threads SET message_count = message_count + 1, last_message_at = NOW(), updated_at = NOW() WHERE id = :id"), {"id": thread_id})
+    db.execute(text("""
+        UPDATE chat_threads
+        SET message_count = message_count + 1, last_message_at = NOW(), updated_at = NOW()
+        WHERE id = :id
+    """), {"id": thread_id})
     db.commit()
 
     return {
-        "answer": answer, "thread_id": thread_id,
-        "message_id": msg_row[0] if msg_row else None,
-        "sources": sources[:5], "total_sources": len(sources),
-        "tokens_used": tokens, "latency_ms": latency_ms,
+        "answer":        answer,
+        "thread_id":     thread_id,
+        "message_id":    msg_row[0] if msg_row else None,
+        "sources":       sources[:5],
+        "total_sources": len(sources),
+        "tokens_used":   tokens,
+        "latency_ms":    latency_ms,
     }
 
 
 @router.get("/chat/threads")
-def list_threads(user_identifier: str | None = None, limit: int = 20, db: Session = Depends(get_db)):
+def list_threads(
+    user_identifier: str | None = None,
+    limit: int = 20,
+    db: Session = Depends(get_db)
+):
     where  = "WHERE user_identifier = :user" if user_identifier else ""
-    params = {"limit": limit}
-    if user_identifier: params["user"] = user_identifier
+    params: dict = {"limit": limit}
+    if user_identifier:
+        params["user"] = user_identifier
 
     rows = db.execute(text(f"""
         SELECT id, title, message_count, last_message_at, created_at
-        FROM chat_threads {where} ORDER BY updated_at DESC LIMIT :limit
+        FROM chat_threads {where}
+        ORDER BY updated_at DESC LIMIT :limit
     """), params).fetchall()
 
     return {"threads": [
-        {"id": r[0], "title": r[1], "message_count": r[2],
-         "last_message_at": str(r[3]) if r[3] else None,
-         "created_at": str(r[4]) if r[4] else None}
+        {
+            "id":              r[0],
+            "title":           r[1],
+            "message_count":   r[2],
+            "last_message_at": str(r[3]) if r[3] else None,
+            "created_at":      str(r[4]) if r[4] else None,
+        }
         for r in rows
     ]}
 
@@ -278,12 +410,22 @@ def get_thread_messages(thread_id: str, db: Session = Depends(get_db)):
     for id_, role, content, sources_raw, tokens, latency, feedback, created in rows:
         srcs = sources_raw if isinstance(sources_raw, list) else (json.loads(sources_raw) if sources_raw else [])
         messages.append({
-            "id": id_, "role": role, "content": content, "sources": srcs,
-            "tokens_used": tokens, "latency_ms": latency,
-            "feedback": feedback, "created_at": str(created) if created else None,
+            "id":          id_,
+            "role":        role,
+            "content":     content,
+            "sources":     srcs,
+            "tokens_used": tokens,
+            "latency_ms":  latency,
+            "feedback":    feedback,
+            "created_at":  str(created) if created else None,
         })
 
-    return {"thread_id": thread[0], "title": thread[1], "message_count": thread[2], "messages": messages}
+    return {
+        "thread_id":     thread[0],
+        "title":         thread[1],
+        "message_count": thread[2],
+        "messages":      messages,
+    }
 
 
 @router.post("/chat/messages/{message_id}/feedback")
@@ -302,7 +444,8 @@ def submit_feedback(message_id: int, req: FeedbackRequest, db: Session = Depends
 @router.delete("/chat/threads/{thread_id}")
 def delete_thread(thread_id: str, db: Session = Depends(get_db)):
     result = db.execute(
-        text("DELETE FROM chat_threads WHERE id = :id RETURNING id"), {"id": thread_id}
+        text("DELETE FROM chat_threads WHERE id = :id RETURNING id"),
+        {"id": thread_id}
     ).fetchone()
     if not result:
         raise HTTPException(404, "Thread não encontrado.")
@@ -314,11 +457,11 @@ def delete_thread(thread_id: str, db: Session = Depends(get_db)):
 def get_suggestions():
     return {"suggestions": [
         "Quais são os maiores riscos de retenção no C6 Bank?",
-        "Como aproveitar o RTO do Nubank para captar talentos sêniors?",
-        "O que engenheiros sêniors reclamam no C6 Bank?",
-        "Em quais dimensões o C6 Bank supera o Nubank como empregador?",
-        "Quais 3 ações tomar nos próximos 90 dias para melhorar o employer branding?",
-        "Como está a percepção de liderança no C6 comparado ao Nubank?",
-        "Qual o perfil dos funcionários que saíram do C6 Bank em 2024?",
-        "O que o C6 pode aprender com os pontos fortes do Nubank em stack técnica?",
+        "Compare o employer branding do C6 com todos os concorrentes do mercado.",
+        "Em quais dimensões o iFood está à frente do C6 e o que podemos aprender?",
+        "Qual empresa tem a melhor percepção de saúde mental e como replicar?",
+        "Quais janelas de captação existem no mercado agora?",
+        "Como está a percepção de liderança no C6 comparada ao mercado?",
+        "O Banco BV tem score alto em salários — o C6 pode usar isso como diferencial?",
+        "Quais problemas são exclusivos do C6 vs endêmicos do setor financeiro?",
     ]}
