@@ -123,6 +123,7 @@ def slug_from_empresa(nome: str) -> str | None:
         "Nu":               "nubank",
         "Banco BV":         "banco_bv",
         "BV":               "banco_bv",
+        "banco BV":         "banco_bv",
         "Bradesco":         "bradesco",
         "Banco Bradesco":   "bradesco",
         "Ifood":            "ifood",
@@ -133,6 +134,7 @@ def slug_from_empresa(nome: str) -> str | None:
         "Mercado Livre":    "mercado_livre",
         "MercadoLivre":     "mercado_livre",
         "Mercado Libre":    "mercado_livre",
+        "Mercado Livre Brasil": "mercado_livre",
     }
     return mapa.get(nome)
 
