@@ -199,7 +199,7 @@ def analyze_skills_gap(session, company_id: int, company_name: str) -> list[dict
         "SELECT COUNT(*) FROM jobs WHERE company_id = :cid"
     ), {"cid": company_id}).scalar() or 1
 
-    # Skills com alta demanda (>20% das vagas)
+    # Skills com alta demanda (>10% das vagas)
     high_demand = {
         row[0]: round(row[1] / total_jobs, 3)
         for row in skill_rows
@@ -292,7 +292,7 @@ def analyze_leadership_gap(session, company_id: int, dim_map: dict) -> dict | No
     score, mentions, neg_count, pos_count, neg_quotes_raw = stats
     pct_neg = round(neg_count / mentions, 3) if mentions else 0
 
-    # Vagas que mencionam liderança/gestão (títulos de manager, lead, etc.)
+    # Vagas que mencionam liderança/gestão
     mgmt_jobs = session.execute(text("""
         SELECT COUNT(*) FROM jobs
         WHERE company_id = :cid
@@ -424,6 +424,34 @@ def analyze_health_gap(session, company_id: int, dim_map: dict) -> dict | None:
     }
 
 
+# ── Relatório de gaps por empresa ─────────────────────────────────────────────
+
+def print_company_gaps(session, company_id: int, company_name: str, is_target: bool):
+    tag = " 🎯 TARGET" if is_target else ""
+    print(f"\n{'=' * 65}")
+    print(f"  📊 RESUMO DE GAPS — {company_name}{tag}")
+    print(f"{'=' * 65}")
+
+    gaps = session.execute(text("""
+        SELECT d.name, g.gap_severity, g.gap_direction,
+               g.gap_description, g.recommendation
+        FROM discourse_reality_gaps g
+        JOIN dimensions d ON d.id = g.dimension_id
+        WHERE g.company_id = :cid AND g.analysis_version = :v
+        ORDER BY g.gap_severity DESC
+    """), {"cid": company_id, "v": ANALYSIS_VERSION}).fetchall()
+
+    if not gaps:
+        print(f"  ℹ️  Nenhum gap encontrado (empresa pode não ter vagas ou reviews analisadas).")
+        return
+
+    for dim_name, severity, direction, description, recommendation in gaps:
+        icon = "🔴" if severity >= 4 else "⚠️ " if severity >= 3 else "✅"
+        print(f"\n  {icon} {dim_name} — Severidade {severity}/5")
+        print(f"     {description[:120]}...")
+        print(f"     💡 {recommendation[:100]}...")
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -449,12 +477,12 @@ def main():
         dim_map = {slug: id_ for id_, slug in dims}
 
         companies = session.execute(
-            text("SELECT id, name, slug FROM companies WHERE is_active = true ORDER BY is_target DESC")
+            text("SELECT id, name, slug, is_target FROM companies WHERE is_active = true ORDER BY is_target DESC")
         ).fetchall()
 
         total_gaps = 0
 
-        for company_id, company_name, slug in companies:
+        for company_id, company_name, slug, is_target in companies:
             print(f"\n  🏢 {company_name}")
 
             gaps_to_insert = []
@@ -538,29 +566,9 @@ def main():
             total_gaps += len(gaps_to_insert)
             print(f"    ✅ {len(gaps_to_insert)} gaps persistidos")
 
-        # Resumo final
-        print(f"\n{'=' * 65}")
-        print(f"  📊 RESUMO DE GAPS — C6 Bank (TARGET)")
-        print(f"{'=' * 65}")
-
-        c6_id = session.execute(
-            text("SELECT id FROM companies WHERE slug = 'c6_bank'")
-        ).scalar()
-
-        gaps = session.execute(text("""
-            SELECT d.name, g.gap_severity, g.gap_direction,
-                   g.gap_description, g.recommendation
-            FROM discourse_reality_gaps g
-            JOIN dimensions d ON d.id = g.dimension_id
-            WHERE g.company_id = :cid AND g.analysis_version = :v
-            ORDER BY g.gap_severity DESC
-        """), {"cid": c6_id, "v": ANALYSIS_VERSION}).fetchall()
-
-        for dim_name, severity, direction, description, recommendation in gaps:
-            icon = "🔴" if severity >= 4 else "⚠️ " if severity >= 3 else "✅"
-            print(f"\n  {icon} {dim_name} — Severidade {severity}/5")
-            print(f"     {description[:120]}...")
-            print(f"     💡 {recommendation[:100]}...")
+        # Relatório final — todas as empresas, target primeiro
+        for company_id, company_name, slug, is_target in companies:
+            print_company_gaps(session, company_id, company_name, is_target)
 
         print(f"\n{'=' * 65}")
         print(f"  ✅ {total_gaps} gaps analisados e persistidos")

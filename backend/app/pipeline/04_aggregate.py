@@ -6,7 +6,7 @@ Calcula e persiste:
   • company_dimension_stats por empresa × dimensão × período
   • Sentimento médio por empresa ao longo do tempo (mensal)
   • Top temas emergentes por empresa
-  • Comparação direta C6 Bank vs Nubank por dimensão
+  • Comparação direta C6 Bank vs todas as outras empresas por dimensão
 
 Idempotente: limpa e recalcula para a analysis_version atual.
 
@@ -273,50 +273,95 @@ def print_company_health(session):
 
 
 def print_comparison(session):
-    print("\n" + "=" * 65)
-    print("  ⚔️  COMPARAÇÃO DIRETA: C6 Bank vs Nubank")
-    print("=" * 65)
+    """Compara C6 Bank contra todas as outras empresas ativas, dimensão a dimensão."""
 
-    c6_id = session.execute(text("SELECT id FROM companies WHERE slug = 'c6_bank'")).scalar()
-    nu_id = session.execute(text("SELECT id FROM companies WHERE slug = 'nubank'")).scalar()
-    dims  = session.execute(
+    # Busca C6 Bank (target)
+    c6 = session.execute(
+        text("SELECT id, name FROM companies WHERE slug = 'c6_bank' AND is_active = true")
+    ).fetchone()
+
+    if not c6:
+        print("\n  ⚠️  C6 Bank não encontrado no banco — comparação ignorada.")
+        return
+
+    c6_id, c6_name = c6
+
+    # Busca todos os concorrentes (todas as outras empresas ativas)
+    competitors = session.execute(
+        text("SELECT id, name FROM companies WHERE slug != 'c6_bank' AND is_active = true ORDER BY name")
+    ).fetchall()
+
+    if not competitors:
+        print("\n  ⚠️  Nenhum concorrente encontrado no banco.")
+        return
+
+    dims = session.execute(
         text("SELECT id, name FROM dimensions WHERE is_active = true ORDER BY display_order")
     ).fetchall()
 
-    if not c6_id or not nu_id:
-        return
+    # Busca scores do C6 de uma vez
+    c6_scores: dict[int, float] = {}
+    for (dim_id, score) in session.execute(text("""
+        SELECT dimension_id, sentiment_score
+        FROM company_dimension_stats
+        WHERE company_id = :cid AND period = 'all' AND analysis_version = :v
+    """), {"cid": c6_id, "v": ANALYSIS_VERSION}).fetchall():
+        c6_scores[dim_id] = score
 
-    print(f"\n  {'Dimensão':<25} {'C6 Bank':>10} {'Nubank':>10}  Vantagem")
-    print(f"  {'-'*62}")
+    # Itera cada concorrente
+    for comp_id, comp_name in competitors:
+        print("\n" + "=" * 65)
+        print(f"  ⚔️  COMPARAÇÃO: {c6_name} vs {comp_name}")
+        print("=" * 65)
 
-    for dim_id, dim_name in dims:
-        c6 = session.execute(text("""
-            SELECT sentiment_score FROM company_dimension_stats
-            WHERE company_id = :cid AND dimension_id = :did
-              AND period = 'all' AND analysis_version = :v
-        """), {"cid": c6_id, "did": dim_id, "v": ANALYSIS_VERSION}).scalar()
+        # Busca scores do concorrente de uma vez
+        comp_scores: dict[int, float] = {}
+        for (dim_id, score) in session.execute(text("""
+            SELECT dimension_id, sentiment_score
+            FROM company_dimension_stats
+            WHERE company_id = :cid AND period = 'all' AND analysis_version = :v
+        """), {"cid": comp_id, "v": ANALYSIS_VERSION}).fetchall():
+            comp_scores[dim_id] = score
 
-        nu = session.execute(text("""
-            SELECT sentiment_score FROM company_dimension_stats
-            WHERE company_id = :cid AND dimension_id = :did
-              AND period = 'all' AND analysis_version = :v
-        """), {"cid": nu_id, "did": dim_id, "v": ANALYSIS_VERSION}).scalar()
+        # Verifica se o concorrente tem dados
+        if not comp_scores:
+            print(f"  ℹ️  {comp_name} ainda não tem dados analisados — pulando.")
+            continue
 
-        c6_s = f"{c6:.1f}" if c6 is not None else "N/A"
-        nu_s = f"{nu:.1f}" if nu is not None else "N/A"
+        c6_wins    = 0
+        comp_wins  = 0
+        ties       = 0
 
-        if c6 is not None and nu is not None:
-            diff = c6 - nu
-            if diff > 0.5:
-                vantagem = f"✅ C6 Bank (+{diff:.1f})"
-            elif diff < -0.5:
-                vantagem = f"🟣 Nubank (+{abs(diff):.1f})"
+        print(f"\n  {'Dimensão':<25} {c6_name[:12]:>12} {comp_name[:12]:>12}  Vantagem")
+        print(f"  {'-'*70}")
+
+        for dim_id, dim_name in dims:
+            c6_s   = c6_scores.get(dim_id)
+            comp_s = comp_scores.get(dim_id)
+
+            c6_str   = f"{c6_s:.1f}"   if c6_s   is not None else "N/A"
+            comp_str = f"{comp_s:.1f}" if comp_s  is not None else "N/A"
+
+            if c6_s is not None and comp_s is not None:
+                diff = c6_s - comp_s
+                if diff > 0.5:
+                    vantagem = f"✅ {c6_name[:10]} (+{diff:.1f})"
+                    c6_wins += 1
+                elif diff < -0.5:
+                    vantagem = f"🔵 {comp_name[:10]} (+{abs(diff):.1f})"
+                    comp_wins += 1
+                else:
+                    vantagem = "⚖️  Empate"
+                    ties += 1
             else:
-                vantagem = "⚖️  Empate"
-        else:
-            vantagem = "—"
+                vantagem = "—"
 
-        print(f"  {dim_name:<25} {c6_s:>10} {nu_s:>10}  {vantagem}")
+            print(f"  {dim_name:<25} {c6_str:>12} {comp_str:>12}  {vantagem}")
+
+        # Placar final
+        total_dims = c6_wins + comp_wins + ties
+        print(f"\n  Placar: {c6_name} {c6_wins} × {comp_wins} {comp_name}  "
+              f"({ties} empate{'s' if ties != 1 else ''} em {total_dims} dimensões)")
 
 
 def print_top_temas(session):
@@ -340,6 +385,9 @@ def print_top_temas(session):
         all_temas = []
         for (temas_raw,) in rows:
             all_temas.extend(safe_json_loads(temas_raw))
+
+        if not all_temas:
+            continue
 
         top = Counter(all_temas).most_common(15)
         print(f"\n  🏢 {company_name}")
