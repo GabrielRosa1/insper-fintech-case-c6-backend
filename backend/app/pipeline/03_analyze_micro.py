@@ -22,6 +22,9 @@ Uso:
 
     # Forçar re-análise (nova versão):
     python -m app.pipeline.03_analyze_micro --force
+
+    # Testar com poucas reviews antes de rodar tudo:
+    python -m app.pipeline.03_analyze_micro --limit 10
 """
 
 import sys
@@ -163,9 +166,31 @@ def analyze_review(review_id: int, review: dict, dimensions: list[dict], max_ret
                 return None
 
         except anthropic.RateLimitError:
-            wait = 30 * (attempt + 1)
-            print(f"\n  ⏳ Rate limit — aguardando {wait}s...")
+            # Backoff generoso: 60s, 120s, 180s
+            wait = 60 * (attempt + 1)
+            print(f"\n  ⏳ Rate limit — aguardando {wait}s... (tentativa {attempt + 1}/{max_retries})")
             time.sleep(wait)
+
+        except anthropic.APIStatusError as e:
+            # 529 = overloaded, 500 = internal error, 529 = too many requests
+            if e.status_code in (429, 500, 529):
+                wait = 30 * (attempt + 1)
+                print(f"\n  ⏳ API status {e.status_code} — aguardando {wait}s... (tentativa {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                # Erro não recuperável (ex: 400 bad request) — não adianta tentar de novo
+                print(f"\n  ❌ API status {e.status_code} para review {review_id}: {e}")
+                return None
+
+        except anthropic.APIConnectionError as e:
+            # Problema de rede — tenta de novo com backoff
+            wait = 15 * (attempt + 1)
+            print(f"\n  ⏳ Erro de conexão — aguardando {wait}s... (tentativa {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                time.sleep(wait)
+            else:
+                print(f"\n  ❌ Falha de conexão persistente para review {review_id}")
+                return None
 
         except anthropic.APIError as e:
             if attempt < max_retries - 1:
@@ -179,7 +204,7 @@ def analyze_review(review_id: int, review: dict, dimensions: list[dict], max_ret
 
 # ── Persistência ──────────────────────────────────────────────────────────────
 
-def save_analysis(result: dict, dimension_map: dict[str, int]):
+def save_analysis(result: dict, dimension_map: dict[str, int]) -> bool:
     """Salva o resultado da análise no banco (review + review_dimensions)."""
     if not result:
         return False
@@ -203,14 +228,14 @@ def save_analysis(result: dict, dimension_map: dict[str, int]):
                 WHERE id = :review_id
             """),
             {
-                "review_id":            review_id,
-                "analyzed_at":          datetime.now(timezone.utc),
-                "analysis_version":     ANALYSIS_VERSION,
-                "sentimento_geral":     result.get("sentimento_geral", "neutro"),
+                "review_id":             review_id,
+                "analyzed_at":           datetime.now(timezone.utc),
+                "analysis_version":      ANALYSIS_VERSION,
+                "sentimento_geral":      result.get("sentimento_geral", "neutro"),
                 "intensidade_emocional": result.get("intensidade_emocional", 5),
-                "temas_emergentes":     json.dumps(result.get("temas_emergentes", []), ensure_ascii=False),
+                "temas_emergentes":      json.dumps(result.get("temas_emergentes", []), ensure_ascii=False),
                 "menciona_concorrentes": json.dumps(result.get("menciona_concorrentes", []), ensure_ascii=False),
-                "resumo_ia":            result.get("resumo_ia", ""),
+                "resumo_ia":             result.get("resumo_ia", ""),
             },
         )
 
@@ -227,7 +252,7 @@ def save_analysis(result: dict, dimension_map: dict[str, int]):
         dims = result.get("dimensoes", [])
         dim_rows = []
         for d in dims:
-            slug = d.get("slug")
+            slug   = d.get("slug")
             dim_id = dimension_map.get(slug)
             if not dim_id or not d.get("mencionada", False):
                 continue
@@ -271,7 +296,7 @@ def save_analysis(result: dict, dimension_map: dict[str, int]):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--empresa", help="Slug da empresa: c6_bank | nubank")
+    parser.add_argument("--empresa", help="Slug da empresa (ex: c6_bank, nubank, bradesco, itau_unibanco...)")
     parser.add_argument("--force",   action="store_true", help="Re-analisa reviews já analisadas")
     parser.add_argument("--limit",   type=int, default=0, help="Limitar número de reviews (teste)")
     args = parser.parse_args()
@@ -302,9 +327,9 @@ def main():
             params["version"] = ANALYSIS_VERSION
 
         if args.empresa:
-            where_clauses.append("""
-                company_id = (SELECT id FROM companies WHERE slug = :slug)
-            """)
+            where_clauses.append(
+                "company_id = (SELECT id FROM companies WHERE slug = :slug)"
+            )
             params["slug"] = args.empresa
 
         # Não processa reviews de eventos e sem texto útil
@@ -347,15 +372,15 @@ def main():
         reviews_dict.append({
             "id": id_,
             "data": {
-                "empresa":             empresa,
-                "cargo":               cargo,
-                "avaliacao_geral":     nota,
-                "status_funcionario":  status,
-                "tempo_empresa":       tempo,
-                "data_review":         str(data_r) if data_r else None,
-                "titulo_review":       titulo,
-                "pros":                pros,
-                "contras":             contras,
+                "empresa":              empresa,
+                "cargo":                cargo,
+                "avaliacao_geral":      nota,
+                "status_funcionario":   status,
+                "tempo_empresa":        tempo,
+                "data_review":          str(data_r) if data_r else None,
+                "titulo_review":        titulo,
+                "pros":                 pros,
+                "contras":              contras,
                 "conselho_presidencia": conselho,
             }
         })
@@ -392,11 +417,18 @@ def main():
     pbar.close()
 
     # ── Relatório final ──
+    total    = len(reviews_dict)
+    pct_ok   = (success / total * 100) if total else 0
+    pct_fail = (failed  / total * 100) if total else 0
+
     print(f"\n{'=' * 65}")
     print(f"  ✅ Análise micro concluída")
-    print(f"     Sucesso:  {success:,}")
-    print(f"     Falhas:   {failed:,}")
-    print(f"     Total:    {len(reviews_dict):,}")
+    print(f"     Sucesso:  {success:,}  ({pct_ok:.1f}%)")
+    print(f"     Falhas:   {failed:,}  ({pct_fail:.1f}%)")
+    print(f"     Total:    {total:,}")
+    if failed:
+        print(f"\n  ℹ️  As {failed} reviews com falha ficaram sem analysis_version")
+        print(f"     e serão reprocessadas automaticamente na próxima execução.")
     print(f"{'=' * 65}")
     print(f"\n🚀 Próximo passo: python -m app.pipeline.04_aggregate")
 

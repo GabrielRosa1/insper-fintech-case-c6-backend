@@ -34,8 +34,13 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 RAW_DIR  = BASE_DIR / "data" / "raw"
 
 REVIEW_FILES = {
-    "c6_bank": RAW_DIR / "c6bank.json",
-    "nubank":  RAW_DIR / "nubank.json",
+    "c6_bank":        RAW_DIR / "c6bank.json",
+    "nubank":         RAW_DIR / "nubank.json",
+    "banco_bv":       RAW_DIR / "bancobv.json",
+    "bradesco":       RAW_DIR / "bradesco.json",
+    "ifood":          RAW_DIR / "ifood.json",
+    "itau_unibanco":  RAW_DIR / "itau.json",
+    "mercado_livre":  RAW_DIR / "mercadolivre.json",
 }
 
 JOBS_MARKET    = RAW_DIR / "vagas_market_intelligence.csv"
@@ -111,15 +116,25 @@ def normalize_work_model(modelo: str | None) -> str:
 
 
 def slug_from_empresa(nome: str) -> str | None:
-    """Mapeia nome de empresa para slug da tabela companies."""
     mapa = {
-        "C6 Bank":    "c6_bank",
-        "C6Bank":     "c6_bank",
-        "Nubank":     "nubank",
-        "Nu":         "nubank",
+        "C6 Bank":          "c6_bank",
+        "C6Bank":           "c6_bank",
+        "Nubank":           "nubank",
+        "Nu":               "nubank",
+        "Banco BV":         "banco_bv",
+        "BV":               "banco_bv",
+        "Bradesco":         "bradesco",
+        "Banco Bradesco":   "bradesco",
+        "Ifood":            "ifood",
+        "iFood":            "ifood",
+        "Itaú Unibanco":    "itau_unibanco",
+        "Itau Unibanco":    "itau_unibanco",
+        "Itaú":             "itau_unibanco",
+        "Mercado Livre":    "mercado_livre",
+        "MercadoLivre":     "mercado_livre",
+        "Mercado Libre":    "mercado_livre",
     }
     return mapa.get(nome)
-
 
 # ── Reviews ──────────────────────────────────────────────────────────────────
 
