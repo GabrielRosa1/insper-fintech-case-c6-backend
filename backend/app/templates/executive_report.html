@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>C6 Bank — Employer Branding Intelligence</title>
+<style>
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* PAGE SETUP (xhtml2pdf compatível)                                       */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  @page { size: A4; margin: 18mm 16mm 22mm 16mm; }
+
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.55;
+    color: #1f1f25;
+  }
+
+  h1, h2, h3, h4 { font-weight: bold; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* CAPA                                                                    */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .cover {
+    page-break-after: always;
+    background-color: #0a0a0c;
+    color: #e5e5e7;
+    padding: 28mm 24mm 20mm 24mm;
+    min-height: 257mm;
+  }
+
+  .cover-brand {
+    font-size: 11pt;
+    color: #f59e0b;
+    font-weight: bold;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    margin-bottom: 14mm;
+  }
+
+  .cover-eyebrow {
+    font-size: 11pt;
+    color: #8a8a93;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 5mm;
+  }
+
+  .cover-title {
+    font-size: 52pt;
+    line-height: 1.05;
+    margin-bottom: 8mm;
+    font-weight: bold;
+    color: #e5e5e7;
+  }
+
+  .cover-title-accent { color: #f59e0b; }
+
+  .cover-subtitle {
+    font-size: 14pt;
+    color: #b4b4ba;
+    max-width: 130mm;
+    line-height: 1.4;
+    margin-bottom: 20mm;
+  }
+
+  .cover-divider {
+    border: none;
+    border-top: 1px solid #2a2a30;
+    margin: 10mm 0 8mm 0;
+  }
+
+  .cover-meta-grid {
+    width: 100%;
+  }
+  .cover-meta-grid td {
+    padding: 0 6mm 0 0;
+    vertical-align: top;
+    color: #8a8a93;
+    font-size: 9pt;
+    width: 25%;
+  }
+  .cover-meta-value {
+    display: block;
+    color: #e5e5e7;
+    font-size: 20pt;
+    font-weight: bold;
+    margin-top: 2mm;
+    margin-bottom: 1mm;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* PÁGINAS INTERNAS                                                        */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .page { page-break-after: always; padding-top: 4mm; }
+  /* .page:last-child removed */
+
+  .section-title {
+    font-size: 20pt;
+    color: #1f1f25;
+    margin-bottom: 3mm;
+  }
+
+  .section-subtitle {
+    font-size: 10pt;
+    color: #6b6b73;
+    margin-bottom: 7mm;
+    line-height: 1.5;
+  }
+
+  .eyebrow {
+    font-size: 8pt;
+    color: #d97706;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 3mm;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* KPI GRID                                                                */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .kpi-table { width: 100%; margin-bottom: 9mm; border-collapse: separate; border-spacing: 3mm 0; }
+  .kpi-table td { width: 25%; vertical-align: top; }
+
+  .kpi {
+    background: #fafafa;
+    border: 1px solid #e8e8eb;
+    border-radius: 3mm;
+    padding: 5mm;
+  }
+  .kpi-accent {
+    background: #fef9e7;
+    border-color: #fcd34d;
+  }
+
+  .kpi-label {
+    font-size: 7.5pt;
+    color: #8a8a93;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: bold;
+    margin-bottom: 3mm;
+  }
+  .kpi-accent .kpi-label { color: #d97706; }
+
+  .kpi-value {
+    font-size: 22pt;
+    font-weight: bold;
+    color: #1f1f25;
+    line-height: 1;
+    margin-bottom: 2mm;
+  }
+  .kpi-accent .kpi-value { color: #b45309; }
+
+  .kpi-helper { font-size: 8pt; color: #6b6b73; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* TABELA                                                                  */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 6mm; font-size: 9pt; }
+  table.data-table th {
+    text-align: left;
+    padding: 3mm 2mm;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #6b6b73;
+    font-weight: bold;
+    border-bottom: 1px solid #e8e8eb;
+  }
+  table.data-table td {
+    padding: 3.5mm 2mm;
+    border-bottom: 1px solid #f0f0f3;
+    vertical-align: middle;
+  }
+  table.data-table td.num {
+    text-align: right;
+    font-weight: 600;
+  }
+  .row-target { background: #fef9e7; }
+  .row-target td:first-child { font-weight: bold; }
+
+  .target-badge {
+    background: #f59e0b;
+    color: #0a0a0c;
+    font-size: 7pt;
+    font-weight: bold;
+    padding: 0.5mm 2mm;
+    border-radius: 1.5mm;
+    margin-left: 2mm;
+  }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* SCORES                                                                  */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .score-good { color: #059669; font-weight: bold; }
+  .score-ok   { color: #0891b2; font-weight: bold; }
+  .score-warn { color: #d97706; font-weight: bold; }
+  .score-bad  { color: #dc2626; font-weight: bold; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* DIMENSÕES                                                               */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .dim-table { width: 100%; border-collapse: collapse; margin-bottom: 2mm; }
+  .dim-table td { padding: 3.5mm 4mm; border-bottom: 1px solid #f0f0f3; vertical-align: middle; }
+  .dim-name { font-size: 10pt; font-weight: 600; width: 50mm; }
+  .dim-pos { font-size: 10pt; font-weight: bold; width: 18mm; }
+  .dim-pos-good { color: #059669; }
+  .dim-pos-mid  { color: #d97706; }
+  .dim-pos-bad  { color: #dc2626; }
+  .dim-score-label { font-size: 8pt; color: #6b6b73; }
+  .dim-leader { font-size: 8.5pt; color: #6b6b73; text-align: right; width: 45mm; }
+  .dim-row-leader { background: #ecfdf5; }
+  .dim-row-last   { background: #fef2f2; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* INSIGHTS                                                                */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .insight {
+    background: #fafafa;
+    border-radius: 3mm;
+    padding: 5mm;
+    margin-bottom: 4mm;
+    border-left: 3px solid #6b6b73;
+    page-break-inside: avoid;
+  }
+  .insight-critica { border-left-color: #dc2626; background: #fef2f2; }
+  .insight-alta    { border-left-color: #d97706; background: #fefbf3; }
+  .insight-media   { border-left-color: #0891b2; background: #ecfeff; }
+
+  .insight-header-table { width: 100%; margin-bottom: 3mm; }
+  .insight-header-table td { vertical-align: middle; }
+
+  .tag {
+    font-size: 7pt;
+    font-weight: bold;
+    padding: 0.8mm 2.5mm;
+    border-radius: 2mm;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid #d8d8db;
+    color: #6b6b73;
+    background: #fff;
+    margin-right: 2mm;
+  }
+  .tag-critica { background: #fee2e2; border-color: #fecaca; color: #b91c1c; }
+  .tag-alta    { background: #fed7aa; border-color: #fdba74; color: #c2410c; }
+  .tag-media   { background: #cffafe; border-color: #a5f3fc; color: #0e7490; }
+
+  .insight-prazo {
+    font-size: 8pt;
+    font-weight: bold;
+    color: #d97706;
+    background: #fef3c7;
+    padding: 1mm 3mm;
+    border: 1px solid #fcd34d;
+    border-radius: 2mm;
+    white-space: nowrap;
+  }
+
+  .insight-title    { font-size: 11.5pt; font-weight: bold; margin-bottom: 1.5mm; }
+  .insight-headline { font-size: 9pt; color: #6b6b73; font-style: italic; margin-bottom: 3mm; line-height: 1.5; }
+  .insight-desc     { font-size: 9.5pt; line-height: 1.6; margin-bottom: 3mm; }
+
+  .insight-action {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 2mm;
+    padding: 3mm 4mm;
+    font-size: 9pt;
+    line-height: 1.55;
+  }
+  .insight-action-label {
+    font-size: 7pt;
+    font-weight: bold;
+    color: #047857;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 1.5mm;
+  }
+
+  .insight-meta { font-size: 7.5pt; color: #6b6b73; margin-top: 3mm; }
+  .status-pendente     { color: #4b5563; background: #f3f4f6; padding: 0.5mm 2mm; border-radius: 1.5mm; font-weight: bold; font-size: 7pt; }
+  .status-em_andamento { color: #0e7490; background: #cffafe; padding: 0.5mm 2mm; border-radius: 1.5mm; font-weight: bold; font-size: 7pt; }
+  .status-concluida    { color: #047857; background: #ecfdf5; padding: 0.5mm 2mm; border-radius: 1.5mm; font-weight: bold; font-size: 7pt; }
+  .status-descartada   { color: #9ca3af; background: #f3f4f6; padding: 0.5mm 2mm; border-radius: 1.5mm; font-weight: bold; font-size: 7pt; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* JANELAS                                                                 */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .window {
+    border: 2px solid #f59e0b;
+    background: #fffbeb;
+    border-radius: 3mm;
+    padding: 5mm;
+    margin-bottom: 4mm;
+    page-break-inside: avoid;
+  }
+  .window-eyebrow { font-size: 8pt; font-weight: bold; color: #b45309; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2mm; }
+  .window-title   { font-size: 13pt; font-weight: bold; margin-bottom: 2mm; }
+  .window-headline { font-size: 9.5pt; font-style: italic; color: #2a2a30; margin-bottom: 3mm; }
+  .window-desc    { font-size: 9.5pt; line-height: 1.6; margin-bottom: 3mm; }
+  .window-meta    { border-top: 1px solid #fde68a; padding-top: 3mm; font-size: 8pt; color: #92400e; }
+  .window-meta td { padding-right: 8mm; vertical-align: top; }
+  .window-meta-val { font-size: 9pt; font-weight: bold; color: #1f1f25; display: block; margin-top: 1mm; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* AÇÕES                                                                   */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .action-item {
+    background: #ecfeff;
+    border-left: 3px solid #0891b2;
+    border-radius: 2mm;
+    padding: 3mm 4mm;
+    margin-bottom: 2mm;
+    page-break-inside: avoid;
+  }
+  .action-title { font-size: 10pt; font-weight: bold; margin-bottom: 1mm; }
+  .action-notes { font-size: 8.5pt; color: #4b5563; line-height: 1.5; }
+  .action-date  { font-size: 7pt; color: #6b6b73; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2mm; }
+
+  /* ──────────────────────────────────────────────────────────────────────── */
+  /* FOOTER NOTE                                                             */
+  /* ──────────────────────────────────────────────────────────────────────── */
+  .footer-note {
+    font-size: 8pt;
+    color: #8a8a93;
+    margin-top: 8mm;
+    padding-top: 4mm;
+    border-top: 1px solid #e8e8eb;
+    line-height: 1.5;
+  }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- CAPA                                                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-brand">&#9670; C6 BANK</div>
+  <div class="cover-eyebrow">Employer Branding Intelligence</div>
+  <div class="cover-title">
+    Relat&oacute;rio<br/>
+    Executivo<br/>
+    <span class="cover-title-accent">{{ generated_at.year }}</span>
+  </div>
+  <div class="cover-subtitle">
+    Intelig&ecirc;ncia competitiva de capta&ccedil;&atilde;o e reten&ccedil;&atilde;o de talentos &mdash;
+    an&aacute;lise de {{ total_reviews }} reviews em {{ total_companies }} empresas
+    via IA &middot; Glassdoor + LinkedIn.
+  </div>
+
+  <hr class="cover-divider" />
+
+  <table class="cover-meta-grid">
+    <tr>
+      <td>
+        Posi&ccedil;&atilde;o no mercado
+        <span class="cover-meta-value">{% if c6_rank %}{{ c6_rank|ordinal }}{% else %}&mdash;{% endif %} de {{ total_companies }}</span>
+      </td>
+      <td>
+        Score sentimento C6
+        <span class="cover-meta-value">{% if c6 %}{{ c6.sentiment_score|fmt_score }}/10{% else %}&mdash;{% endif %}</span>
+      </td>
+      <td>
+        Reviews analisadas
+        <span class="cover-meta-value">{{ total_reviews }}</span>
+      </td>
+      <td>
+        Gerado em
+        <span class="cover-meta-value">{{ generated_at.strftime('%d/%m/%Y') }}</span>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- PANORAMA EXECUTIVO                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="eyebrow">&#9670; Panorama Executivo</div>
+  <h2 class="section-title">O estado do employer branding do C6 Bank</h2>
+  <p class="section-subtitle">
+    Comparativo com {{ total_companies - 1 }} concorrentes do mercado financeiro e de tecnologia.
+    An&aacute;lise baseada em reviews reais do Glassdoor cruzadas com vagas do LinkedIn, processada via Claude IA.
+  </p>
+
+  <table class="kpi-table">
+    <tr>
+      <td><div class="kpi kpi-accent">
+        <div class="kpi-label">Posi&ccedil;&atilde;o</div>
+        <div class="kpi-value">{% if c6_rank %}{{ c6_rank|ordinal }}{% else %}&mdash;{% endif %}</div>
+        <div class="kpi-helper">de {{ total_companies }} empresas</div>
+      </div></td>
+      <td><div class="kpi">
+        <div class="kpi-label">Score sentimento</div>
+        <div class="kpi-value">{% if c6 %}{{ c6.sentiment_score|fmt_score }}{% else %}&mdash;{% endif %}</div>
+        <div class="kpi-helper">ponderado 0&ndash;10</div>
+      </div></td>
+      <td><div class="kpi">
+        <div class="kpi-label">Nota m&eacute;dia</div>
+        <div class="kpi-value">{% if c6 %}{{ c6.avg_nota|fmt_score }}{% else %}&mdash;{% endif %}</div>
+        <div class="kpi-helper">{% if c6 %}{{ c6.pct_positivo|fmt_pct }} positivo &middot; {{ c6.pct_negativo|fmt_pct }} negativo{% endif %}</div>
+      </div></td>
+      <td><div class="kpi">
+        <div class="kpi-label">Reviews</div>
+        <div class="kpi-value">{% if c6 %}{{ c6.total_reviews }}{% else %}&mdash;{% endif %}</div>
+        <div class="kpi-helper">analisadas pela IA</div>
+      </div></td>
+    </tr>
+  </table>
+
+  <h3 style="font-size:13pt; margin-bottom:4mm;">Ranking de mercado por sentimento</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th style="width:10mm;">#</th>
+        <th>Empresa</th>
+        <th class="num">Sentimento</th>
+        <th class="num">Nota</th>
+        <th class="num">Reviews</th>
+        <th class="num">% Positivo</th>
+        <th class="num">% Negativo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for co in companies %}
+      <tr{% if co.is_target %} class="row-target"{% endif %}>
+        <td><strong>{{ loop.index|ordinal }}</strong></td>
+        <td>{{ co.name }}{% if co.is_target %} <span class="target-badge">TARGET</span>{% endif %}</td>
+        <td class="num {{ co.sentiment_score|score_class }}">{{ co.sentiment_score|fmt_score }}/10</td>
+        <td class="num">{{ co.avg_nota|fmt_score }}</td>
+        <td class="num">{{ co.total_reviews }}</td>
+        <td class="num">{{ co.pct_positivo|fmt_pct }}</td>
+        <td class="num">{{ co.pct_negativo|fmt_pct }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- POSIÇÃO POR DIMENSÃO                                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="eyebrow">&#9670; An&aacute;lise por Dimens&atilde;o</div>
+  <h2 class="section-title">Posi&ccedil;&atilde;o do C6 Bank por dimens&atilde;o</h2>
+  <p class="section-subtitle">
+    Ranking nas 9 dimens&otilde;es de employer branding contra os {{ total_companies - 1 }} concorrentes.
+    Verde = C6 lidera &middot; Vermelho = &uacute;ltimo lugar.
+  </p>
+
+  <table class="dim-table">
+    {% for dim in dimensions %}
+    <tr class="{% if dim.is_c6_leader %}dim-row-leader{% elif dim.is_c6_last %}dim-row-last{% endif %}">
+      <td class="dim-name">{{ dim.name }}</td>
+      <td class="dim-pos {% if dim.c6_position and dim.c6_position/dim.total <= 0.4 %}dim-pos-good{% elif dim.c6_position == dim.total %}dim-pos-bad{% else %}dim-pos-mid{% endif %}">
+        {% if dim.c6_position %}{{ dim.c6_position|ordinal }}/{{ dim.total }}{% else %}&mdash;{% endif %}
+      </td>
+      <td>
+        <span class="dim-score-label">C6: </span>
+        <span class="{{ dim.c6_score|score_class }}">{{ dim.c6_score|fmt_score }}/10</span>
+      </td>
+      <td class="dim-leader">
+        L&iacute;der: <strong>{{ dim.leader_name }}</strong>
+        &nbsp;<span class="{{ dim.leader_score|score_class }}">{{ dim.leader_score|fmt_score }}</span>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <p class="footer-note">
+    <strong>Leitura estrat&eacute;gica:</strong>
+    Dimens&otilde;es verdes = vantagens competitivas reais para usar em recrutamento.
+    Dimens&otilde;es vermelhas = prioridades de turnaround interno.
+  </p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- JANELAS DE CAPTAÇÃO                                                     -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+{% if windows %}
+<div class="page">
+  <div class="eyebrow">&#127919; Janelas Estrat&eacute;gicas</div>
+  <h2 class="section-title">Oportunidades de capta&ccedil;&atilde;o ativas</h2>
+  <p class="section-subtitle">
+    Concorrentes em momento de fragilidade &mdash; janelas para captar talentos identificadas pela IA.
+  </p>
+
+  {% for w in windows %}
+  <div class="window">
+    <div class="window-eyebrow">
+      Janela aberta &middot; Prioridade {{ w.priority|upper }}{% if w.target != "&mdash;" %} &middot; Alvo: {{ w.target }}{% endif %}
+    </div>
+    <div class="window-title">{{ w.titulo }}</div>
+    <div class="window-headline">{{ w.headline }}</div>
+    <div class="window-desc">{{ w.descricao }}</div>
+    <table class="window-meta"><tr>
+      <td>Prazo recomendado<span class="window-meta-val">{{ w.prazo or "&mdash;" }}</span></td>
+      <td>Concorrente em foco<span class="window-meta-val">{{ w.target }}</span></td>
+    </tr></table>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- TOP INSIGHTS                                                            -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="eyebrow">&#9670; Insights Estrat&eacute;gicos</div>
+  <h2 class="section-title">Top insights por prioridade</h2>
+  <p class="section-subtitle">
+    Insights cr&iacute;ticos e altos identificados pela IA &mdash; ordenados por prioridade e ROI estimado.
+  </p>
+
+  {% for ins in insights %}
+  <div class="insight insight-{{ ins.priority }}">
+    <table class="insight-header-table">
+      <tr>
+        <td>
+          <span class="tag tag-{{ ins.priority }}">{{ ins.priority|upper }}</span>
+          <span class="tag">{{ ins.tipo|replace('_', ' ')|capitalize }}</span>
+        </td>
+        <td style="text-align:right;">
+          {% if ins.prazo %}<span class="insight-prazo">&#9203; {{ ins.prazo }}</span>{% endif %}
+        </td>
+      </tr>
+    </table>
+    <div class="insight-title">{{ ins.titulo }}</div>
+    <div class="insight-headline">{{ ins.headline }}</div>
+    <div class="insight-desc">{{ ins.descricao }}</div>
+    {% if ins.acao %}
+    <div class="insight-action">
+      <div class="insight-action-label">&#10003; A&ccedil;&atilde;o recomendada</div>
+      {{ ins.acao }}
+    </div>
+    {% endif %}
+    <div class="insight-meta">
+      Impacto: <strong>{{ ins.impacto }}</strong>/5 &nbsp;&middot;&nbsp;
+      Esfor&ccedil;o: <strong>{{ ins.esforco }}</strong>/5 &nbsp;&middot;&nbsp;
+      ROI: <strong>{{ ins.roi|fmt_score }}</strong>
+      &nbsp;&nbsp;
+      <span class="status-{{ ins.status }}">{{ ins.status|replace('_', ' ') }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- AÇÕES EM ANDAMENTO                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+{% if actions_in_progress %}
+<div class="page">
+  <div class="eyebrow">&#9651; Tracking Operacional</div>
+  <h2 class="section-title">A&ccedil;&otilde;es em andamento</h2>
+  <p class="section-subtitle">
+    Iniciativas atualmente marcadas como em execu&ccedil;&atilde;o.
+  </p>
+  {% for a in actions_in_progress %}
+  <div class="action-item">
+    <div class="action-title">{{ a.titulo }}</div>
+    {% if a.notas %}<div class="action-notes">{{ a.notas }}</div>{% endif %}
+    <div class="action-date">Atualizado em {{ a.updated_at|fmt_date }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<!-- METODOLOGIA                                                             -->
+<!-- ══════════════════════════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="eyebrow">&#9675; Metodologia</div>
+  <h2 class="section-title">Como esta an&aacute;lise foi feita</h2>
+
+  <div style="font-size:9.5pt; line-height:1.7; margin-top:6mm;">
+    <p style="margin-bottom:4mm;">
+      <strong>Coleta de dados:</strong> {{ total_reviews }} reviews do Glassdoor de {{ total_companies }} empresas
+      (C6 Bank, Nubank, Ita&uacute; Unibanco, Bradesco, Banco BV, iFood e Mercado Livre),
+      al&eacute;m de vagas em aberto do LinkedIn.
+    </p>
+    <p style="margin-bottom:4mm;">
+      <strong>An&aacute;lise micro:</strong> Cada review &eacute; processada pelo Claude Haiku,
+      classificada em 9 dimens&otilde;es (Lideran&ccedil;a, Cultura, Sal&aacute;rio, Modelo de Trabalho,
+      Crescimento, Sa&uacute;de Mental, Diversidade, Stack T&eacute;cnica, Prop&oacute;sito).
+    </p>
+    <p style="margin-bottom:4mm;">
+      <strong>An&aacute;lise macro:</strong> O Claude Sonnet recebe o panorama consolidado e gera
+      insights estrat&eacute;gicos comparativos, identificando janelas de capta&ccedil;&atilde;o,
+      riscos de reten&ccedil;&atilde;o e vantagens competitivas reais.
+    </p>
+    <p style="margin-bottom:4mm;">
+      <strong>RAG sem&acirc;ntico:</strong> Todas as reviews t&ecirc;m embeddings vetoriais
+      (Voyage AI &middot; voyage-3 &middot; 1024 dims) em pgvector, permitindo consultas em
+      linguagem natural com cita&ccedil;&otilde;es rastreáveis.
+    </p>
+    <div style="margin-top:8mm; padding:4mm; background:#fafafa; border-left:3px solid #f59e0b; border-radius:2mm;">
+      <strong>Nota metodol&oacute;gica:</strong> C6 Bank e Nubank usaram amostragem estratificada por nota
+      (distribui&ccedil;&atilde;o artificialmente balanceada). As m&eacute;tricas qualitativas
+      (quotes, temas, dimens&otilde;es) permanecem v&aacute;lidas. Compara&ccedil;&otilde;es de nota
+      m&eacute;dia absoluta entre essas duas empresas e as demais devem ser interpretadas com essa ressalva.
+    </div>
+  </div>
+
+  <p class="footer-note">
+    Desenvolvido com Claude IA &middot; Insper Fintech Case &middot; C6 Bank &middot; 2026 &middot;
+    Relatório gerado em {{ generated_at.strftime('%d/%m/%Y &agrave;s %H:%M') }}.
+  </p>
+</div>
+
+</body>
+</html>

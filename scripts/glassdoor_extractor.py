@@ -16,7 +16,7 @@ Uso:
   python glassdoor_extractor.py prints/ --workers 10
 
 Requisitos:
-  pip install anthropic tqdm
+  pip install anthropic tqdm python-dotenv
   set ANTHROPIC_API_KEY=sua_chave  (Windows)
   export ANTHROPIC_API_KEY=sua_chave  (Mac/Linux)
 """
@@ -41,13 +41,12 @@ except ImportError:
     print("Falta instalar tqdm. Rode: pip install tqdm")
     sys.exit(1)
 
+load_dotenv()
 
-MODEL = "claude-haiku-4-5-20251001"
-MAX_TOKENS = 2500
+MODEL       = "claude-haiku-4-5-20251001"
+MAX_TOKENS  = 2500
 MAX_RETRIES = 3
 RETRY_DELAY = 2  # segundos
-
-load_dotenv()
 
 PROMPT = """Analise esta imagem do Glassdoor e extraia TODAS as reviews COMPLETAS visíveis.
 
@@ -137,9 +136,9 @@ def extract_reviews_from_image(client, image_path):
                 }]
             )
 
-            raw = response.content[0].text.strip()
+            raw   = response.content[0].text.strip()
             clean = raw.replace("```json", "").replace("```", "").strip()
-            data = json.loads(clean)
+            data  = json.loads(clean)
             return data.get("reviews", [])
 
         except json.JSONDecodeError as e:
@@ -168,8 +167,8 @@ def content_hash(review):
 
 def load_state(output_path, errors_path):
     """Carrega reviews existentes, hashes de conteúdo e arquivos já processados."""
-    reviews = []
-    hashes = set()
+    reviews         = []
+    hashes          = set()
     processed_files = set()
 
     if os.path.exists(output_path):
@@ -199,9 +198,42 @@ def save_errors(errors, errors_path):
         json.dump(errors, f, ensure_ascii=False, indent=2)
 
 
+def export_pipeline_json(reviews, output_path):
+    """
+    Exporta versão limpa para o pipeline 01_ingest.py:
+    - Remove markers de controle (_no_complete_reviews, _source_file, etc.)
+    - Remove reviews sem pros ou contras (incompletas que passaram)
+    - Garante que avaliacao_geral seja float
+    """
+    clean = []
+    for r in reviews:
+        # Pula markers de controle
+        if r.get("_no_complete_reviews"):
+            continue
+
+        # Pula se não tiver os campos mínimos para o pipeline
+        if not r.get("pros") and not r.get("contras"):
+            continue
+
+        # Copia só os campos do schema (sem os metadados _)
+        entry = {k: v for k, v in r.items() if not k.startswith("_")}
+
+        # Garante float
+        if entry.get("avaliacao_geral") is not None:
+            entry["avaliacao_geral"] = float(entry["avaliacao_geral"])
+
+        clean.append(entry)
+
+    pipeline_path = output_path.replace(".json", "_pipeline.json")
+    with open(pipeline_path, "w", encoding="utf-8") as f:
+        json.dump(clean, f, ensure_ascii=False, indent=2)
+
+    return pipeline_path, len(clean)
+
+
 def expand_paths(inputs):
     """Expande diretórios e padrões glob em paths de arquivos."""
-    files = []
+    files      = []
     valid_exts = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
     for item in inputs:
         if os.path.isdir(item):
@@ -216,11 +248,11 @@ def expand_paths(inputs):
 
 
 def print_summary(reviews, errors, elapsed):
-    total = len(reviews)
-    empresas = {}
+    total        = len(reviews)
+    empresas     = {}
     distribuicao = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-    recomendam = {True: 0, False: 0, None: 0}
-    notas = []
+    recomendam   = {True: 0, False: 0, None: 0}
+    notas        = []
 
     for r in reviews:
         emp = r.get("empresa") or "Desconhecida"
@@ -253,7 +285,7 @@ def print_summary(reviews, errors, elapsed):
         max_val = max(distribuicao.values()) if distribuicao.values() else 1
         for stars in [5, 4, 3, 2, 1]:
             count = distribuicao.get(stars, 0)
-            bar = "#" * int(count / max_val * 20) if max_val > 0 else ""
+            bar   = "#" * int(count / max_val * 20) if max_val > 0 else ""
             print(f"    {stars} estrelas: {count:4d}  {bar}")
 
         if notas:
@@ -263,6 +295,7 @@ def print_summary(reviews, errors, elapsed):
         print(f"    Sim:    {recomendam[True]}")
         print(f"    Não:    {recomendam[False]}")
         print(f"    Neutro: {recomendam[None]}")
+
     print("=" * 50)
 
 
@@ -270,44 +303,50 @@ def main():
     parser = argparse.ArgumentParser(
         description="Extrai reviews do Glassdoor de prints para JSON",
     )
-    parser.add_argument("inputs", nargs="+", help="Imagens, pastas ou padrões glob")
-    parser.add_argument("--empresa", "-e", help="Empresa (sobrescreve se não detectada)")
-    parser.add_argument("--output", "-o", default="reviews.json", help="Arquivo JSON de saída")
-    parser.add_argument("--errors", default="errors.json", help="Arquivo de erros")
-    parser.add_argument("--workers", "-w", type=int, default=5, help="Processos paralelos (padrão: 5)")
-    parser.add_argument("--api-key", help="API key (ou ANTHROPIC_API_KEY env)")
+    parser.add_argument("inputs",    nargs="+", help="Imagens, pastas ou padrões glob")
+    parser.add_argument("--empresa", "-e", help="Nome da empresa (sobrescreve sempre quando informado)")
+    parser.add_argument("--output",  "-o", default="reviews.json", help="Arquivo JSON de saída")
+    parser.add_argument("--errors",        default="errors.json",  help="Arquivo de erros")
+    parser.add_argument("--workers", "-w", type=int, default=5,    help="Processos paralelos (padrão: 5)")
+    # BUG FIX 1: --api-key agora é realmente usado
+    parser.add_argument("--api-key",       help="API key da Anthropic (alternativa à env var)")
     args = parser.parse_args()
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    # BUG FIX 1: usa --api-key se fornecido, senão cai no env
+    api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         print("Erro: defina ANTHROPIC_API_KEY ou use --api-key")
         sys.exit(1)
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client     = anthropic.Anthropic(api_key=api_key)
+    all_files  = expand_paths(args.inputs)
 
-    all_files = expand_paths(args.inputs)
     if not all_files:
         print("Nenhuma imagem encontrada nos paths fornecidos")
         sys.exit(1)
 
     reviews, hashes, processed_files, errors = load_state(args.output, args.errors)
 
-    pending = [f for f in all_files if Path(f).name not in processed_files]
+    pending       = [f for f in all_files if Path(f).name not in processed_files]
     skipped_files = len(all_files) - len(pending)
 
     print(f"\n{args.output}: {len(reviews)} entradas já salvas")
     print(f"{len(all_files)} imagens encontradas")
     if skipped_files:
         print(f"{skipped_files} já processadas (pulando)")
+    if args.empresa:
+        print(f"Empresa: {args.empresa} (sobrescreve campo empresa em todas as reviews)")
     print(f"{len(pending)} para processar com {args.workers} workers paralelos\n")
 
     if not pending:
         print("Tudo já foi processado!")
         real_reviews = [r for r in reviews if not r.get("_no_complete_reviews")]
         print_summary(real_reviews, errors, 0)
+        pipeline_path, pipeline_count = export_pipeline_json(reviews, args.output)
+        print(f"\nArquivo para o pipeline: {pipeline_path} ({pipeline_count} reviews limpas)")
         return
 
-    lock = Lock()
+    lock  = Lock()
     stats = {"new_reviews": 0, "duplicates": 0, "incomplete": 0}
     start_time = time.time()
 
@@ -320,7 +359,8 @@ def main():
 
             with lock:
                 for review in extracted:
-                    if args.empresa and not review.get("empresa"):
+                    # BUG FIX 2: --empresa SEMPRE sobrescreve (não só quando nulo)
+                    if args.empresa:
                         review["empresa"] = args.empresa
 
                     h = content_hash(review)
@@ -329,21 +369,21 @@ def main():
                         continue
 
                     hashes.add(h)
-                    review["_source_file"] = file_name
-                    review["_processed_at"] = datetime.now().isoformat()
+                    review["_source_file"]   = file_name
+                    review["_processed_at"]  = datetime.now().isoformat()
                     reviews.append(review)
                     new_count += 1
 
                 if not extracted:
                     stats["incomplete"] += 1
                     reviews.append({
-                        "_source_file": file_name,
-                        "_processed_at": datetime.now().isoformat(),
-                        "_no_complete_reviews": True,
+                        "_source_file":          file_name,
+                        "_processed_at":         datetime.now().isoformat(),
+                        "_no_complete_reviews":  True,
                     })
 
                 stats["new_reviews"] += new_count
-                stats["duplicates"] += dup_count
+                stats["duplicates"]  += dup_count
                 save_reviews(reviews, args.output)
 
             return {"file": file_name, "new": new_count, "dup": dup_count}
@@ -352,8 +392,8 @@ def main():
             file_name = Path(image_path).name
             with lock:
                 errors.append({
-                    "file": file_name,
-                    "error": str(e),
+                    "file":      file_name,
+                    "error":     str(e),
                     "timestamp": datetime.now().isoformat(),
                 })
                 save_errors(errors, args.errors)
@@ -370,23 +410,33 @@ def main():
                 else:
                     pbar.set_postfix({
                         "novas": stats["new_reviews"],
-                        "dup": stats["duplicates"],
+                        "dup":   stats["duplicates"],
                     })
                 pbar.update(1)
 
     elapsed = time.time() - start_time
 
-    real_reviews = [r for r in reviews if not r.get("_no_complete_reviews")]
-    # Mantém os markers no arquivo (pra resume funcionar), mas faz summary só das reais
+    # Salva arquivo completo (com markers, para resume futuro)
     save_reviews(reviews, args.output)
 
+    real_reviews = [r for r in reviews if not r.get("_no_complete_reviews")]
+
     print(f"\nConcluído em {elapsed:.1f}s")
-    print(f"  {stats['new_reviews']} novas reviews | {stats['duplicates']} duplicatas | {stats['incomplete']} imagens sem review completa | {len(errors)} erros")
+    print(
+        f"  {stats['new_reviews']} novas reviews | "
+        f"{stats['duplicates']} duplicatas | "
+        f"{stats['incomplete']} imagens sem review completa | "
+        f"{len(errors)} erros"
+    )
 
     print_summary(real_reviews, errors, elapsed)
 
+    pipeline_path, pipeline_count = export_pipeline_json(reviews, args.output)
+    print(f"\n✓ Arquivo para o pipeline: {pipeline_path} ({pipeline_count} reviews limpas)")
+    print(f"  → Passe este arquivo para: python pipeline/01_ingest.py --arquivo {pipeline_path} --empresa \"{args.empresa or 'Nome da Empresa'}\"")
+
     if errors:
-        print(f"\nErros salvos em {args.errors}. Você pode deletar esse arquivo e rodar novamente para tentar de novo.")
+        print(f"\nErros salvos em {args.errors}. Delete o arquivo e rode novamente para tentar de novo.")
 
 
 if __name__ == "__main__":

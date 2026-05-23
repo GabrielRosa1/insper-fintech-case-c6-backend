@@ -229,8 +229,12 @@ insights                13 insights estratégicos gerados
 
 ```
 .
+├── .claude/
+│   └── settings.local.json
+├── .env
 ├── .gitattributes
 ├── .gitignore
+├── .venv/
 ├── README.md
 ├── bancobv.json
 ├── bradesco.json
@@ -248,7 +252,10 @@ insights                13 insights estratégicos gerados
 │   ├── github_vagas.py
 │   └── ifdata_bacen.py
 ├── backend/
+│   ├── .claude/
+│   │   └── settings.local.json
 │   ├── .dockerignore
+│   ├── .env
 │   ├── .env.example
 │   ├── alembic.ini
 │   ├── requirements.txt
@@ -360,16 +367,23 @@ insights                13 insights estratégicos gerados
 │   ├── vagas_c6_x_concorrentes.ipynb
 │   └── vagas_concorrentes.ipynb
 └── scripts/
-        ├── glassdoor_extractor.py
-        ├── glassdoor_jobs_review_2_database.py
-        ├── glassdoor_review_database.py
-        ├── normalize_names.py
-        ├── normalize_nubank.py
-        ├── salary_database.py
-        ├── state_of_data_brazil_2024r.py
-        └── prints/
-                ├── c6/
-                └── nubank/
+│   ├── glassdoor_extractor.py
+│   ├── glassdoor_jobs_review_2_database.py
+│   ├── glassdoor_review_database.py
+│   ├── normalize_names.py
+│   ├── normalize_nubank.py
+│   ├── salary_database.py
+│   ├── state_of_data_brazil_2024r.py
+│   └── prints/
+│       ├── bancobv/
+│       ├── bradesco/
+│       ├── c6/
+│       ├── c6-recente/
+│       ├── ifood/
+│       ├── itau/
+│       ├── mercadolivre/
+│       ├── nubank/
+│       └── nubank-recente/
 ```
 
 <br>
