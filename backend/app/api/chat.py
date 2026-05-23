@@ -127,7 +127,7 @@ def build_system_prompt(db: Session) -> str:
         FROM company_dimension_stats s
         JOIN companies  c ON c.id = s.company_id
         JOIN dimensions d ON d.id = s.dimension_id
-        WHERE s.period = 'all' AND s.analysis_version = 'v1'
+        WHERE s.period = 'all' AND s.analysis_version = 'v2'
           AND d.is_active = true AND c.is_active = true
         ORDER BY d.display_order, s.sentiment_score DESC
     """)).fetchall()

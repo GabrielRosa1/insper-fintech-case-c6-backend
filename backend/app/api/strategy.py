@@ -153,7 +153,7 @@ def _get_target_company_snapshot(db: Session, slug: str) -> dict | None:
         FROM company_dimension_stats s
         JOIN dimensions d ON d.id = s.dimension_id
         WHERE s.company_id = (SELECT id FROM companies WHERE slug = :slug)
-          AND s.period = 'all' AND s.analysis_version = 'v1'
+          AND s.period = 'all' AND s.analysis_version = 'v2'
           AND s.total_mentions >= 5
         ORDER BY s.sentiment_score ASC
         LIMIT 3
@@ -599,11 +599,11 @@ def _build_c6_advantages(db: Session, compared_slug: str | None) -> str:
             FROM dimensions d
             LEFT JOIN company_dimension_stats s1
                 ON s1.dimension_id = d.id AND s1.period = 'all'
-                AND s1.analysis_version = 'v1'
+                AND s1.analysis_version = 'v2'
                 AND s1.company_id = (SELECT id FROM companies WHERE slug = 'c6_bank')
             LEFT JOIN company_dimension_stats s2
                 ON s2.dimension_id = d.id AND s2.period = 'all'
-                AND s2.analysis_version = 'v1'
+                AND s2.analysis_version = 'v2'
                 AND s2.company_id = (SELECT id FROM companies WHERE slug = :slug)
             WHERE d.is_active = true
               AND s1.sentiment_score IS NOT NULL
@@ -627,7 +627,7 @@ def _build_c6_advantages(db: Session, compared_slug: str | None) -> str:
             FROM company_dimension_stats s
             JOIN dimensions d ON d.id = s.dimension_id
             WHERE s.company_id = (SELECT id FROM companies WHERE slug = 'c6_bank')
-              AND s.period = 'all' AND s.analysis_version = 'v1'
+              AND s.period = 'all' AND s.analysis_version = 'v2'
             ORDER BY s.sentiment_score DESC
             LIMIT 5
         """)).fetchall()

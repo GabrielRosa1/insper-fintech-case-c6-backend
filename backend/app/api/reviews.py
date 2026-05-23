@@ -242,7 +242,7 @@ def get_review(review_id: int, db: Session = Depends(get_db)):
                rd.evidence_quote, rd.is_primary, rd.confidence
         FROM review_dimensions rd
         JOIN dimensions d ON d.id = rd.dimension_id
-        WHERE rd.review_id = :id AND rd.analysis_version = 'v1'
+        WHERE rd.review_id = :id AND rd.analysis_version = 'v2'
         ORDER BY rd.is_primary DESC, rd.intensity DESC
     """), {"id": review_id}).fetchall()
 
@@ -312,7 +312,7 @@ def reviews_by_dimension(
         JOIN reviews r ON r.id = rd.review_id
         JOIN companies c ON c.id = r.company_id
         WHERE c.slug = :empresa
-          AND rd.analysis_version = 'v1'
+          AND rd.analysis_version = 'v2'
           AND r.is_event_review = false
         GROUP BY d.name, d.slug, d.display_order, rd.sentiment
         ORDER BY d.display_order, rd.sentiment
