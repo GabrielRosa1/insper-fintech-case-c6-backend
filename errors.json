@@ -528,5 +528,10 @@
     "file": "Code_6KhWc8jDKA.png",
     "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Extra data: line 4 column 1 (char 18)",
     "timestamp": "2026-05-20T19:22:19.372390"
+  },
+  {
+    "file": "opera_Yw9SvMRrXn.png",
+    "error": "Falhou após 3 tentativas. Último erro: JSON inválido: Expecting ',' delimiter: line 16 column 49 (char 1498)",
+    "timestamp": "2026-05-22T21:34:10.721232"
   }
 ]
