@@ -26,9 +26,7 @@ from collections import Counter
 # ─── CAMINHOS ────────────────────────────────────────────────────────────────
 BASE_DIR    = Path(__file__).parent.parent
 INPUT_FILES = [
-    BASE_DIR / "data/apify/scraping_linkedin_1.json",
-    BASE_DIR / "data/apify/scraping_linkedin_2.json",
-    BASE_DIR / "data/apify/scraping_linkedin_3.json",
+    BASE_DIR / "data/apify/vagas_20260521_0123.json",
 ]
 OUTPUT_DIR  = BASE_DIR / "data/processed"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

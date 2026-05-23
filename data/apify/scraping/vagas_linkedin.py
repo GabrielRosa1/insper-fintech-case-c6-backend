@@ -53,45 +53,15 @@ TIME_FILTER = "r2592000"
 # Use múltiplos IDs separados por %2C para incluir subsidiárias
 
 COMPANIES = [
-    {
-        "name": "C6 Bank",
-        "slug": "c6_bank",
-        "f_C":  "10185987",
+        {
+        "name": "Banco BV",
+        "slug": "banco_bv",
+        "f_C":  "13758%2C29914",
     },
     {
-        "name": "Nubank",
-        "slug": "nubank",
-        "f_C":  "3767529",
-    },
-    {
-        "name": "Itaú Unibanco",
-        "slug": "itau",
-        "f_C":  "333329",
-    },
-    {
-        "name": "XP Investimentos",
-        "slug": "xp",
-        "f_C":  "11794476%2C14031303%2C2304919%2C144288%2C2540096",
-    },
-    {
-        "name": "Bradesco",
-        "slug": "bradesco",
-        "f_C":  "162778",
-    },
-    {
-        "name": "iFood",
-        "slug": "ifood",
-        "f_C":  "247645%2C101015933",
-    },
-    {
-        "name": "BTG Pactual",
-        "slug": "btg",
-        "f_C":  "654090%2C53185306%2C71627692%2C3188881%2C11767688%2C22953308",
-    },
-    {
-        "name": "Santander Brasil",
-        "slug": "santander",
-        "f_C":  "434631%2C66197178%2C83543692",
+        "name": "Mercado Livre",
+        "slug": "mercado_livre",
+        "f_C":  "534219",
     },
 ]
 
