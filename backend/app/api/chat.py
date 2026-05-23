@@ -22,7 +22,7 @@ voyage_client    = voyageai.Client(
 
 EMBEDDING_MODEL = "voyage-3"
 CHAT_MODEL      = "claude-haiku-4-5-20251001"
-RAG_LIMIT       = 12   # ligeiramente maior para cobrir mais empresas
+RAG_LIMIT       = 12
 MAX_HISTORY     = 10
 
 # ── System prompt ─────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ Apoiar o C6 Bank em:
 ## Como responder
 - Use os dados de TODAS as empresas disponíveis — compare amplamente quando relevante
 - Ao mencionar um concorrente, cite seu score e posição no ranking para dar contexto
-- Identifique quais problemas são **exclusivos do C6** vs **endêmicos do setor** (importantes para não prometer o que o mercado todo falha)
+- Identifique quais problemas são **exclusivos do C6** vs **endêmicos do setor**
 - Cite trechos literais das reviews entre aspas como evidência
 - Seja direto e estratégico — fale como consultor sênior
 - Use markdown: **negrito** para pontos críticos, ## para seções, listas para ações
@@ -67,7 +67,7 @@ Apoiar o C6 Bank em:
 
 
 def build_system_prompt(db: Session) -> str:
-    # Contagem de reviews por empresa
+    # ── Contagem de reviews por empresa ──────────────────────────────────────
     counts = db.execute(text("""
         SELECT c.slug, c.name, COUNT(r.id) as total,
                ROUND(AVG(r.avaliacao_geral)::numeric, 2) as avg_nota,
@@ -94,40 +94,39 @@ def build_system_prompt(db: Session) -> str:
             score = 0
         companies_with_score.append((slug, name, total or 0, float(avg_nota or 0), score))
 
-    # Ranking por sentiment_score
     ranked = sorted(companies_with_score, key=lambda x: -x[4])
 
-    # Companies context (para o bloco de contexto geral)
+    # Companies context
     companies_lines = []
     for rank_idx, (slug, name, total, avg_nota, score) in enumerate(ranked):
-        is_target = slug == "c6_bank"
-        tag = " ← TARGET" if is_target else ""
+        tag = " ← TARGET" if slug == "c6_bank" else ""
         companies_lines.append(
             f"- **{name}**{tag}: {total} reviews · nota {avg_nota:.1f}/5 · sentimento {score:.1f}/10"
         )
     companies_context = "\n".join(companies_lines)
 
-    # Ranking context (linha simples)
+    # Ranking context
     ranking_lines = []
     for i, (slug, name, total, avg_nota, score) in enumerate(ranked):
-        is_target = slug == "c6_bank"
-        tag = " ← C6" if is_target else ""
+        tag = " ← C6" if slug == "c6_bank" else ""
         ranking_lines.append(f"{i+1}º {name}{tag} — {score:.1f}/10")
     ranking_context = " | ".join(ranking_lines)
 
-    # Scorecard: todas as dimensões × todas as empresas
+    # ── Scorecard por dimensão ────────────────────────────────────────────────
+    # BUG CORRIGIDO: alias "d" agora está declarado no FROM
     dims = db.execute(text("""
-        SELECT d.name, d.display_order FROM dimensions
-        WHERE is_active = true ORDER BY display_order
+        SELECT d.name, d.display_order
+        FROM dimensions d
+        WHERE d.is_active = true
+        ORDER BY d.display_order
     """)).fetchall()
 
-    # Pega scores de todas as empresas para cada dimensão
     all_scores = db.execute(text("""
         SELECT c.slug, c.name, d.name as dim_name, d.display_order,
                s.sentiment_score, s.total_mentions
         FROM company_dimension_stats s
-        JOIN companies   c ON c.id = s.company_id
-        JOIN dimensions  d ON d.id = s.dimension_id
+        JOIN companies  c ON c.id = s.company_id
+        JOIN dimensions d ON d.id = s.dimension_id
         WHERE s.period = 'all' AND s.analysis_version = 'v1'
           AND d.is_active = true AND c.is_active = true
         ORDER BY d.display_order, s.sentiment_score DESC
@@ -140,19 +139,18 @@ def build_system_prompt(db: Session) -> str:
             dim_scores[dim_name] = {"order": d_order, "companies": {}}
         dim_scores[dim_name]["companies"][slug] = (name, float(score) if score else 0, mentions or 0)
 
-    # Monta tabela compacta de scorecard
-    # Colunas: Dimensão | C6 | Nubank | iFood | BV | Bradesco | Itaú | ML | Líder
+    # Monta tabela compacta — colunas dinâmicas a partir das empresas no banco
     company_order = ["c6_bank", "nubank", "ifood", "banco_bv", "bradesco", "itau_unibanco", "mercado_livre"]
     company_abbrev = {
         "c6_bank": "C6", "nubank": "Nu", "ifood": "iFood",
         "banco_bv": "BV", "bradesco": "Brad", "itau_unibanco": "Itaú", "mercado_livre": "ML",
     }
 
-    # Header da tabela
     header_cols = ["Dimensão"] + [company_abbrev.get(s, s) for s in company_order] + ["Líder"]
-    header = "| " + " | ".join(header_cols) + " |"
-    separator = "| " + " | ".join(["---"] * len(header_cols)) + " |"
-    scorecard_rows = [header, separator]
+    scorecard_rows = [
+        "| " + " | ".join(header_cols) + " |",
+        "| " + " | ".join(["---"] * len(header_cols)) + " |",
+    ]
 
     for dim_name, dim_data in sorted(dim_scores.items(), key=lambda x: x[1]["order"]):
         co_data = dim_data["companies"]
@@ -165,25 +163,23 @@ def build_system_prompt(db: Session) -> str:
                 scores_for_dim.append((slug, s))
             else:
                 cols.append("—")
-
-        # Líder desta dimensão
         if scores_for_dim:
             leader_slug = max(scores_for_dim, key=lambda x: x[1])
-            leader_abbrev = company_abbrev.get(leader_slug[0], leader_slug[0])
-            cols.append(f"{leader_abbrev} ({leader_slug[1]:.1f})")
+            cols.append(f"{company_abbrev.get(leader_slug[0], leader_slug[0])} ({leader_slug[1]:.1f})")
         else:
             cols.append("—")
-
         scorecard_rows.append("| " + " | ".join(cols) + " |")
 
     scorecard_table = "\n".join(scorecard_rows)
 
-    # Eventos relevantes (de todas as empresas)
+    # ── Eventos recentes ──────────────────────────────────────────────────────
     events = db.execute(text("""
         SELECT ce.nome, ce.data_evento, c.name, ce.event_type, ce.sentiment_delta
-        FROM company_events ce JOIN companies c ON c.id = ce.company_id
+        FROM company_events ce
+        JOIN companies c ON c.id = ce.company_id
         WHERE ce.is_confirmed = true OR ce.source = 'manual'
-        ORDER BY ce.data_evento DESC LIMIT 8
+        ORDER BY ce.data_evento DESC
+        LIMIT 8
     """)).fetchall()
 
     events_lines = []
@@ -214,7 +210,8 @@ def retrieve_reviews(db: Session, vec_str: str) -> tuple[str, list[dict]]:
                r.pros, r.contras, r.resumo_ia, r.sentimento_geral,
                r.data_review, r.nivel_senioridade, r.area_funcional,
                ROUND((1 - (embedding <=> CAST(:vec AS vector)))::numeric, 3) as sim
-        FROM reviews r JOIN companies c ON c.id = r.company_id
+        FROM reviews r
+        JOIN companies c ON c.id = r.company_id
         WHERE r.embedding IS NOT NULL
         ORDER BY embedding <=> CAST(:vec AS vector)
         LIMIT :lim
@@ -233,16 +230,16 @@ def retrieve_reviews(db: Session, vec_str: str) -> tuple[str, list[dict]]:
         if contras: linhas.append(f"Negativos: {contras[:300]}")
         parts.append("\n".join(linhas))
         sources.append({
-            "id":         id_,
-            "empresa":    empresa,
+            "id":           id_,
+            "empresa":      empresa,
             "empresa_slug": slug,
-            "cargo":      cargo,
-            "nota":       float(nota) if nota else None,
-            "sentimento": sentimento,
-            "nivel":      nivel,
-            "area":       area,
-            "similarity": float(sim),
-            "trecho":     (contras or pros or "")[:150],
+            "cargo":        cargo,
+            "nota":         float(nota) if nota else None,
+            "sentimento":   sentimento,
+            "nivel":        nivel,
+            "area":         area,
+            "similarity":   float(sim),
+            "trecho":       (contras or pros or "")[:150],
         })
 
     return "\n\n---\n\n".join(parts), sources
@@ -269,12 +266,16 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
     # 1. Resolve ou cria thread
     thread_id = req.thread_id
     if thread_id:
-        if not db.execute(text("SELECT id FROM chat_threads WHERE id = :id"), {"id": thread_id}).fetchone():
+        if not db.execute(
+            text("SELECT id FROM chat_threads WHERE id = :id"), {"id": thread_id}
+        ).fetchone():
             raise HTTPException(404, "Thread não encontrado.")
     else:
         thread_id = str(uuid.uuid4())
         title = req.question[:80] + ("..." if len(req.question) > 80 else "")
-        c6_id = db.execute(text("SELECT id FROM companies WHERE slug = 'c6_bank'")).scalar()
+        c6_id = db.execute(
+            text("SELECT id FROM companies WHERE slug = 'c6_bank'")
+        ).scalar()
         db.execute(text("""
             INSERT INTO chat_threads (id, title, target_company_id, user_identifier, message_count)
             VALUES (:id, :title, :cid, :user, 0)
@@ -300,7 +301,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
     """), {"id": thread_id})
     db.commit()
 
-    # 4. RAG — busca reviews de todas as empresas semanticamente
+    # 4. RAG — busca semântica em todas as empresas
     q_emb   = get_query_embedding(req.question)
     vec_str = "[" + ",".join(str(round(x, 8)) for x in q_emb) + "]"
     context, sources = retrieve_reviews(db, vec_str)
@@ -313,7 +314,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
         "content": (
             f"## Reviews relevantes recuperadas da base de dados\n\n{context}\n\n"
             f"---\n\n## Pergunta\n\n{req.question}"
-        )
+        ),
     }]
 
     response = anthropic_client.messages.create(
@@ -367,7 +368,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
 def list_threads(
     user_identifier: str | None = None,
     limit: int = 20,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     where  = "WHERE user_identifier = :user" if user_identifier else ""
     params: dict = {"limit": limit}
@@ -396,19 +397,24 @@ def list_threads(
 def get_thread_messages(thread_id: str, db: Session = Depends(get_db)):
     thread = db.execute(
         text("SELECT id, title, message_count FROM chat_threads WHERE id = :id"),
-        {"id": thread_id}
+        {"id": thread_id},
     ).fetchone()
     if not thread:
         raise HTTPException(404, "Thread não encontrado.")
 
     rows = db.execute(text("""
         SELECT id, role, content, sources, tokens_used, latency_ms, feedback, created_at
-        FROM chat_messages WHERE thread_id = :tid ORDER BY created_at ASC
+        FROM chat_messages
+        WHERE thread_id = :tid
+        ORDER BY created_at ASC
     """), {"tid": thread_id}).fetchall()
 
     messages = []
     for id_, role, content, sources_raw, tokens, latency, feedback, created in rows:
-        srcs = sources_raw if isinstance(sources_raw, list) else (json.loads(sources_raw) if sources_raw else [])
+        srcs = (
+            sources_raw if isinstance(sources_raw, list)
+            else (json.loads(sources_raw) if sources_raw else [])
+        )
         messages.append({
             "id":          id_,
             "role":        role,
@@ -433,7 +439,9 @@ def submit_feedback(message_id: int, req: FeedbackRequest, db: Session = Depends
     if req.feedback not in ("positive", "negative"):
         raise HTTPException(400, "Feedback deve ser 'positive' ou 'negative'.")
     result = db.execute(text("""
-        UPDATE chat_messages SET feedback = :fb WHERE id = :id AND role = 'assistant' RETURNING id
+        UPDATE chat_messages SET feedback = :fb
+        WHERE id = :id AND role = 'assistant'
+        RETURNING id
     """), {"fb": req.feedback, "id": message_id}).fetchone()
     if not result:
         raise HTTPException(404, "Mensagem não encontrada.")
@@ -445,7 +453,7 @@ def submit_feedback(message_id: int, req: FeedbackRequest, db: Session = Depends
 def delete_thread(thread_id: str, db: Session = Depends(get_db)):
     result = db.execute(
         text("DELETE FROM chat_threads WHERE id = :id RETURNING id"),
-        {"id": thread_id}
+        {"id": thread_id},
     ).fetchone()
     if not result:
         raise HTTPException(404, "Thread não encontrado.")

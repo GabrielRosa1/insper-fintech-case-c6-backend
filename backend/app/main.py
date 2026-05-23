@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import overview, insights, gaps, timeline, chat, reviews, auth
+from app.api import overview, insights, gaps, timeline, chat, reviews, auth, strategy
 from dotenv import load_dotenv
 import os
 
@@ -26,6 +26,8 @@ app.include_router(gaps.router, prefix="/api/v1")
 app.include_router(timeline.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(reviews.router, prefix="/api/v1")
+app.include_router(strategy.router, prefix="/api/v1")
+
 
 @app.get("/health")
 def health(): return {"status": "ok"}
