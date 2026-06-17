@@ -94,15 +94,25 @@ def get_overview(db: Session = Depends(get_db)):
                 "ranking": [],
             }
 
+        neg_quotes = safe_loads(neg_q)
+        pos_quotes = safe_loads(pos_q)
+        top_neg = neg_quotes[0]["quote"] if neg_quotes else ""
+        top_pos = pos_quotes[0]["quote"] if pos_quotes else ""
+        pct_pos = (pos or 0) / mentions if mentions else 0
+        rep_quote     = top_pos if pct_pos >= 0.5 else top_neg
+        rep_sentiment = "positivo" if pct_pos >= 0.5 else "negativo"
+
         dims_map[d_slug]["ranking"].append({
-            "company_slug":     co_slug,
-            "company_name":     co_name,
-            "score":            float(score) if score else 0,
-            "mentions":         mentions,
-            "pct_negativo":     round((neg or 0) / mentions * 100, 1) if mentions else 0,
-            "pct_positivo":     round((pos or 0) / mentions * 100, 1) if mentions else 0,
-            "top_negative_quote": (safe_loads(neg_q)[0]["quote"] if safe_loads(neg_q) else ""),
-            "top_positive_quote": (safe_loads(pos_q)[0]["quote"] if safe_loads(pos_q) else ""),
+            "company_slug":          co_slug,
+            "company_name":          co_name,
+            "score":                 float(score) if score else 0,
+            "mentions":              mentions,
+            "pct_negativo":          round((neg or 0) / mentions * 100, 1) if mentions else 0,
+            "pct_positivo":          round((pos or 0) / mentions * 100, 1) if mentions else 0,
+            "top_negative_quote":    top_neg,
+            "top_positive_quote":    top_pos,
+            "representative_quote":  rep_quote,
+            "representative_sentiment": rep_sentiment,
         })
 
     dimensions = []
