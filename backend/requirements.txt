@@ -32,3 +32,4 @@ argon2-cffi==23.1.0
 python-multipart==0.0.9
 
 jinja2
+xhtml2pdf==0.2.16
